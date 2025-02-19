@@ -73,7 +73,7 @@ const forgetPassword = async (req, res) => {
         const token = jwt.sign(
             { message: 'Reset Token' },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: parseInt(expirationTime) * 60 }
+            { expiresIn: '5m'}
         );
         
         const storeToken = await User.update(

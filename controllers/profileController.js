@@ -110,10 +110,13 @@ const UploadProfilePic = async (req, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(400).json({ error: "User ID is required" });
+        
         if (!req.files || !req.files.picture) {
             return res.status(400).json({ error: 'Image file is required.' });
         }
+        
         const picture = req.files.picture;
+        const tempFilePath = picture.tempFilePath;
         
         if (!picture.mimetype.startsWith('image/')) {
             return res.status(400).json({ error: 'Invalid image file.' });
@@ -131,25 +134,40 @@ const UploadProfilePic = async (req, res) => {
         const formData = new FormData();
         const folder = `users`;
         formData.append('Folder', folder);
-        formData.append('pictures[]', fs.createReadStream(picture.tempFilePath), picture.name);
+        formData.append('pictures[]', fs.createReadStream(tempFilePath), picture.name);
         
         const response = await axios.post(`${process.env.PHP_Server_URL}/upload-images`, formData, {
             headers: { ...formData.getHeaders() },
         });
+        
         if (!response.data.paths || response.data.paths.length === 0) {
             return res.status(500).json({ error: 'Failed to upload image to PHP server.' });
         }
         
         const newProfilePicPath = response.data.paths[0];
         
+        const deletionTasks = [];
+        
+        deletionTasks.push(
+            new Promise((resolve) => {
+                fs.unlink(tempFilePath, (unlinkErr) => {
+                    if (unlinkErr) {
+                        console.error('Failed to delete temp file:', unlinkErr);
+                    }
+                    resolve();
+                });
+            })
+        );
+        
         if (user && user.picture) {
             const previousPicturePath = user.picture;
-            try {
-                const response = await axios.post(`${process.env.PHP_Server_URL}/destroy-image`, { path: previousPicturePath });
-            } catch (err) {
-                return res.status(500).json({ error: 'Error calling the delete picture API' });
-            }
+            deletionTasks.push(
+                axios.post(`${process.env.PHP_Server_URL}/destroy-image`, { path: previousPicturePath })
+                    .catch((err) => console.error('Error calling delete picture API:', err))
+            );
         }
+        
+        await Promise.all(deletionTasks);
         
         await User.update(
             { picture: newProfilePicPath },
@@ -160,7 +178,9 @@ const UploadProfilePic = async (req, res) => {
             message: 'Profile picture updated successfully!',
             path: newProfilePicPath,
         });
+        
     } catch (error) {
+        console.error('Error in UploadProfilePic:', error);
         res.status(500).json({ error: error.message || 'An error occurred while changing profile picture.' });
     }
 };
