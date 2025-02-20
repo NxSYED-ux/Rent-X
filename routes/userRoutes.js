@@ -9,7 +9,7 @@ const {showFavourites , insertFavorite, deleteFavorite} = require('../controller
 const {showMyProperties, myPropertyDetails} = require('../controllers/myPropertiesController');
 const {logQuery, correspondingDepartments, userUnitNames, getQueriesByField, getQueryDetails} = require('../controllers/queryController')
 const { Tree } = require('../controllers/Tree');
-const { UnitData } = require('../controllers/UnitData');
+const { UnitData, AssignUnit } = require('../controllers/UnitData');
 
 const router = express.Router();
 
@@ -37,8 +37,9 @@ router.post('/log-query', authMiddleware(), logQuery);
 router.get('/get-queries', authMiddleware(), getQueriesByField("user_id"));
 router.get('/query/:id', authMiddleware(), getQueryDetails);
 
-router.get('/BuildingTree/:id', authMiddleware(), Tree);
 
+router.get('/BuildingTree/:id', authMiddleware(), Tree);
 router.get('/Unit/:id', UnitData);
+router.post('/assign-unit', authMiddleware(), AssignUnit);
 
 module.exports = router;

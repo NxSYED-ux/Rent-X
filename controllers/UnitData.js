@@ -71,5 +71,57 @@ const UnitData = async (req, res) => {
     }
 };
 
+const AssignUnit = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ error: "Unauthorized: Invalid User." });
+        }
+        
+        const { userId, unitId, type, price, rentStartDate, rentEndDate, purchaseDate } = req.body;
+        
+        if (!unitId || !type || !price) {
+            return res.status(400).json({ error: "User Id, Unit ID, Type, and Price are required." });
+        }
+        
+        if (type === 'Rented' && (!rentStartDate || !rentEndDate)) {
+            return res.status(400).json({ error: "Rent start date and end date are required for rented type." });
+        }
+        
+        if (type === 'Sold' && !purchaseDate) {
+            return res.status(400).json({ error: "Purchase date is required for sold type." });
+        }
+        
+        const checkingAvailability = await UserBuildingUnits.findOne({
+            where: {
+                user_id: userId,
+                unit_id: unitId,
+                contract_status: 1,
+            },
+        });
+        
+        if (checkingAvailability) {
+            return res.status(400).json({ error: "Already Exists in the database" });
+        }
+        
+        const assignedUnit = await UserBuildingUnits.create(
+            {
+                user_id: userId,
+                unit_id: unitId,
+                type,
+                price,
+                rent_start_date: type === 'Rented' ? rentStartDate : null,
+                rent_end_date: type === 'Rented' ? rentEndDate : null,
+                purchase_date: type === 'Sold' ? purchaseDate : null
+            },
+            { user }
+        );
+        
+        return res.status(201).json({ message: "Unit assigned successfully", assignedUnit });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
 
-module.exports = { UnitData };
+module.exports = { UnitData, AssignUnit};
