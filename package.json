@@ -26,6 +26,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "prisma": "^6.4.0",
     "sequelize-cli": "^6.6.2"
   }
 }
