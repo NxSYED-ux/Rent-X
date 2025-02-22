@@ -8,8 +8,7 @@ const {organizationDetails} = require('../controllers/OrganizationDetailsControl
 const {showFavourites , insertFavorite, deleteFavorite} = require('../controllers/favouritesController');
 const {showMyProperties, myPropertyDetails} = require('../controllers/myPropertiesController');
 const {logQuery, correspondingDepartments, userUnitNames, getQueriesByField, getQueryDetails} = require('../controllers/queryController')
-const { Tree } = require('../controllers/Tree');
-const { UnitData, AssignUnit } = require('../controllers/UnitData');
+const { Tree, AssignUnit, UnitData } = require('../controllers/webTestingController');
 
 const router = express.Router();
 
