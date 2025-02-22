@@ -64,6 +64,10 @@ const Queries = sequelize.define("Queries", {
         type: DataTypes.DATE,
         allowNull: true
     },
+    remarks: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,

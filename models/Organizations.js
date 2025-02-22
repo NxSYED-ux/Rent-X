@@ -83,6 +83,7 @@ Organizations.associate = (model) => {
     Organizations.hasMany(model.Buildings, { foreignKey: 'organization_id', as: 'buildings' });
     Organizations.hasMany(model.BuildingUnits, { foreignKey: 'organization_id', as: 'units' });
     Organizations.hasMany(model.Departments, { foreignKey: 'organization_id', as: 'departments' });
+    Organizations.hasMany(model.StaffMembers, { foreignKey: 'organization_id', as: 'staffMembers' });
 };
 
 module.exports = Organizations;

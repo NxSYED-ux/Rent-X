@@ -3,6 +3,7 @@ const sequelize = require('../config/db');
 const Users = require("./Users");
 const Departments = require("./Departments");
 const Buildings = require("./Buildings");
+const Organizations = require("./Organizations");
 
 const StaffMembers = sequelize.define("StaffMembers", {
     id: {
@@ -28,9 +29,17 @@ const StaffMembers = sequelize.define("StaffMembers", {
     },
     building_id: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Buildings,
+            key: "id"
+        }
+    },
+    organization_id: {
+        type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Organizations,
             key: "id"
         }
     },
@@ -91,6 +100,7 @@ StaffMembers.associate = (model) => {
     StaffMembers.belongsTo(model.Users, { foreignKey: "user_id", as: 'staffMember' });
     StaffMembers.belongsTo(model.Departments, { foreignKey: "department_id", as: 'department' });
     StaffMembers.belongsTo(model.Buildings, { foreignKey: "building_id", as: 'building' });
+    StaffMembers.belongsTo(model.Buildings, { foreignKey: "organization_id", as: 'organization' });
     StaffMembers.belongsTo(model.Users, { foreignKey: "created_by", as: "creator" });
     StaffMembers.belongsTo(model.Users, { foreignKey: "updated_by", as: "updater" });
 };
