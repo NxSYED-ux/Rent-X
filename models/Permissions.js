@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const Permission = sequelize.define('Permission', {
+const Permissions = sequelize.define('Permission', {
     id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
@@ -19,6 +19,7 @@ const Permission = sequelize.define('Permission', {
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
+        defaultValue: 1,
     },
 }, {
     tableName: 'permissions',
@@ -27,9 +28,9 @@ const Permission = sequelize.define('Permission', {
     updatedAt: 'updated_at',
 });
 
-Permission.associate = (model) => {
-    Permission.hasMany(model.RolePermissions, { foreignKey: 'permission_id', as: 'rolePermissions' });
-    Permission.hasMany(model.UserPermissions, { foreignKey: 'permission_id', as: 'userPermissions' });
+Permissions.associate = (model) => {
+    Permissions.hasMany(model.RolePermissions, { foreignKey: 'permission_id', as: 'rolePermissions' });
+    Permissions.hasMany(model.UserPermissions, { foreignKey: 'permission_id', as: 'userPermissions' });
 };
 
-module.exports = Permission;
+module.exports = Permissions;

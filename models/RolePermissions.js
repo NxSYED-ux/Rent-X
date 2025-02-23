@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Roles = require('./Roles');
-const Permissions = require('./Permission');
+const Permissions = require('./Permissions');
 const Users = require('./Users');
 
 const RolePermissions = sequelize.define('RolePermissions', {
@@ -29,6 +29,7 @@ const RolePermissions = sequelize.define('RolePermissions', {
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
+        defaultValue: 1,
     },
     granted_by: {
         type: DataTypes.BIGINT.UNSIGNED,
@@ -47,7 +48,7 @@ const RolePermissions = sequelize.define('RolePermissions', {
 
 RolePermissions.associate = (model) => {
     RolePermissions.belongsTo(model.Roles, { foreignKey: 'role_id', as: 'role' });
-    RolePermissions.belongsTo(model.Permission, { foreignKey: 'permission_id', as: 'permission' });
+    RolePermissions.belongsTo(model.Permissions, { foreignKey: 'permission_id', as: 'permission' });
     RolePermissions.belongsTo(model.Users, { foreignKey: 'granted_by', as: 'grantedBy' });
 };
 

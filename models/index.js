@@ -12,7 +12,7 @@ const BuildingUnits = require('./BuildingUnits');
 const UnitPictures = require('./UnitPictures');
 const UserBuildingUnits = require('./UserBuildingUnits');
 const UserUnitPictures = require('./UserUnitPictures');
-const Permission = require('./Permission');
+const Permissions = require('./Permissions');
 const RolePermissions = require('./RolePermissions');
 const UserPermissions = require('./UserPermissions');
 const Favorites = require('./Favorites');
@@ -38,7 +38,7 @@ const models = {
     UnitPictures,
     UserBuildingUnits,
     UserUnitPictures,
-    Permission,
+    Permissions,
     RolePermissions,
     UserPermissions,
     Favorites,

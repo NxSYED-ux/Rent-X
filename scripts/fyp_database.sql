@@ -446,8 +446,8 @@ CREATE TABLE `permissions` (
 --
 
 INSERT INTO `permissions` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
-(1, 'view_buildings', 'Permission to view buildings', '2024-11-24 13:13:44', '2024-11-24 13:13:44'),
-(2, 'edit_buildings', 'Permission to edit building information', '2024-11-24 13:13:44', '2024-11-24 13:13:44');
+(1, 'view_buildings', 'Permissions to view buildings', '2024-11-24 13:13:44', '2024-11-24 13:13:44'),
+(2, 'edit_buildings', 'Permissions to edit building information', '2024-11-24 13:13:44', '2024-11-24 13:13:44');
 
 -- --------------------------------------------------------
 

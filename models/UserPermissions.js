@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const Users = require('./Users');
-const Permissions = require('./Permission');
+const Permissions = require('./Permissions');
 
 const UserPermissions = sequelize.define('UserPermissions', {
     id: {
@@ -28,6 +28,7 @@ const UserPermissions = sequelize.define('UserPermissions', {
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
+        defaultValue: 1,
     },
     granted_by: {
         type: DataTypes.BIGINT.UNSIGNED,
@@ -62,7 +63,7 @@ UserPermissions.addHook('beforeUpdate', (record, options) => {
 
 UserPermissions.associate = (models) => {
     UserPermissions.belongsTo(models.Users, { foreignKey: 'user_id', as: 'user' });
-    UserPermissions.belongsTo(models.Permission, { foreignKey: 'permission_id', as: 'permission' });
+    UserPermissions.belongsTo(models.Permissions, { foreignKey: 'permission_id', as: 'permission' });
     UserPermissions.belongsTo(models.Users, { foreignKey: 'granted_by', as: 'grantedBy' });
 };
 

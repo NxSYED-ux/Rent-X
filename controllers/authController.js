@@ -5,18 +5,35 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const User = require('../models/Users');
 const Roles = require('../models/Roles');
+const Permissions = require('../models/Permissions');
+const RolePermissions = require('../models/RolePermissions');
+const UserPermissions = require('../models/UserPermissions');
 
 const { generateToken, verifyToken } = require('../utils/jwt');
 const sendEmail = require('../Services/sendEmail');
 
-const login = (role) => async (req, res) => {
+const userAppPermissions = [
+    "User Homepage Access",
+    "Show Favorites Access",
+    "Add Favorites Access",
+    "Remove Favorites Access",
+    "Show My Properties Access",
+    "Log Queries Access",
+    "View User Queries Access"
+];
+
+const staffAppPermissions = [
+    "View Staff Queries Access"
+]
+
+const login = (appIdentifier) => async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
     
     try {
         const user = await User.findOne({
             where: { email },
-            attributes: ['id', 'password', 'role_id']
+            attributes: ['id', 'password', 'role_id'],
         });
         
         if (!user) return res.status(401).json({ error: 'Invalid email or password' });
@@ -28,16 +45,33 @@ const login = (role) => async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, hashedPassword);
         if (!isPasswordValid) return res.status(401).json({ error: 'Invalid email or password' });
         
-        const userRole = await Roles.findOne({
-            where: { id: user.role_id },
-            attributes: ['name']
-        });
+        // Run permission queries in parallel
+        const [userPermissionRecords, rolePermissionRecords] = await Promise.all([
+            UserPermissions.findAll({
+                where: { user_id: user.id },
+                include: [{ model: Permissions, as: 'permission', attributes: ['name'] }]
+            }),
+            RolePermissions.findAll({
+                where: { role_id: user.role_id },
+                include: [{ model: Permissions, as: 'permission', attributes: ['name'] }]
+            })
+        ]);
         
-        if (!userRole || userRole.name.toLowerCase() !== role) return res.status(403).json({ error: 'Access denied: insufficient permissions' });
+        const userPermissionNames = userPermissionRecords.map(up => up.permission.name);
+        const rolePermissionNames = rolePermissionRecords.map(rp => rp.permission.name);
+        const allPermissions = [...new Set([...userPermissionNames, ...rolePermissionNames])];
         
+        const lowerAppIdentifier = appIdentifier.toLowerCase();
+        const appPermissions = lowerAppIdentifier === 'user' ? userAppPermissions : staffAppPermissions;
+        const hasAccess = allPermissions.some(permission => appPermissions.includes(permission));
+        
+        if (!hasAccess) {
+            return res.status(403).json({ error: "Access Denied: You do not have the required permissions to log in." });
+        }
+        console.log(allPermissions);
         return res.status(200).json({
             message: 'Login successful',
-            token : generateToken({id : user.id , role_id : user.role_id}),
+            token: generateToken({ id: user.id, role_id: user.role_id })
         });
         
     } catch (error) {

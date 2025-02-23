@@ -1,4 +1,4 @@
-const Permission = require('../models/Permission');
+const Permission = require('../models/Permissions');
 const UserPermission = require('../models/UserPermissions');
 const RolePermission = require('../models/RolePermissions');
 const Users = require('../models/Users');
@@ -9,20 +9,16 @@ const validatePermission = (requiredPermissionName) => {
             const userId = req.user.id;
             const userRoleId = req.user.role_id;
             
-            //If roles can be changed runtime then uncomment the code otherwise use the token way
-            //const userData = await Users.findOne({where: { id: userId }, attributes: ['role_id']});
-            //const userRoleId = userData.role_id;
-            
             if (!userId || !userRoleId) {
-                return res.status(401).json({ message: 'Unauthorized: Invalid user data' });
+                return res.status(401).json({ error: 'Unauthorized: Invalid user data' });
             }
 
-            const permission = await Permission.findOne({ where: { name: requiredPermissionName } });
-            if (!permission) {
-                return res.status(400).json({ message: `Invalid permission: The permission "${requiredPermissionName}" does not exist.` });
+            const checkPermission = await Permission.findOne({ where: { name: requiredPermissionName, status: 1 }, attributes: ['id'] });
+            if (!checkPermission) {
+                return res.status(400).json({ error: `Access Denied: The permission "${requiredPermissionName}" is either inactive or does not exist.` });
             }
 
-            const permissionId = permission.id;
+            const permissionId = checkPermission.id;
             const userPermissionExists = await UserPermission.findOne({
                 where: { user_id: userId, permission_id: permissionId },
             });
@@ -34,10 +30,10 @@ const validatePermission = (requiredPermissionName) => {
             if (userPermissionExists || rolePermissionExists) {
                 return next();
             }
-            return res.status(403).json({ message: 'Access denied: insufficient permissions' });
+            return res.status(403).json({ error: 'Access denied: insufficient permissions' });
         } catch (error) {
             console.error('Permission validation error:', error.message);
-            return res.status(500).json({ message: 'Internal server error' });
+            return res.status(500).json({ error: 'Internal server error' });
         }
     };
 };
