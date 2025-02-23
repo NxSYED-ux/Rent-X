@@ -161,7 +161,6 @@ const getQueriesByField = (field) => async (req, res) => {
         const satffData = await StaffMembers.findOne({
             where: { user_id: req.user.id },
         })
-        console.log(satffData);
         if (!satffData) {
             return res.status(400).json({ error: "Only staff member can access this" });
         }

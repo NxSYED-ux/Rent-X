@@ -1,13 +1,18 @@
 const Permission = require('../models/Permission');
 const UserPermission = require('../models/UserPermissions');
 const RolePermission = require('../models/RolePermissions');
+const Users = require('../models/Users');
 
 const validatePermission = (requiredPermissionName) => {
     return async (req, res, next) => {
         try {
             const userId = req.user.id;
             const userRoleId = req.user.role_id;
-
+            
+            //If roles can be changed runtime then uncomment the code otherwise use the token way
+            //const userData = await Users.findOne({where: { id: userId }, attributes: ['role_id']});
+            //const userRoleId = userData.role_id;
+            
             if (!userId || !userRoleId) {
                 return res.status(401).json({ message: 'Unauthorized: Invalid user data' });
             }

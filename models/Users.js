@@ -98,7 +98,7 @@ Users.associate = (model) => {
     Users.belongsTo(model.Roles, { foreignKey: 'role_id', as: 'role' });
     Users.belongsTo(model.Address, { foreignKey: 'address_id', as: 'address' });
     
-    Users.hasMany(model.Organizations, { foreignKey: 'owner_id', as: 'Organizations' });
+    Users.hasOne(model.Organizations, { foreignKey: 'owner_id', as: 'Organization' });
     Users.hasMany(model.Organizations, { foreignKey: 'created_by', as: 'createdOrganizations' });
     Users.hasMany(model.Organizations, { foreignKey: 'updated_by', as: 'updatedOrganizations' });
 
@@ -124,7 +124,7 @@ Users.associate = (model) => {
     Users.hasMany(model.Departments, { foreignKey: 'created_by', as: 'createdDepartments' });
     Users.hasMany(model.Departments, { foreignKey: 'updated_by', as: 'updatedDepartments' });
     
-    Users.hasMany(model.StaffMembers, { foreignKey: 'user_id', as: 'staffMembers' });
+    Users.hasOne(model.StaffMembers, { foreignKey: 'user_id', as: 'staffMember' });
     Users.hasMany(model.StaffMembers, { foreignKey: 'created_by', as: 'createdStaffMembers' });
     Users.hasMany(model.StaffMembers, { foreignKey: 'updated_by', as: 'updatedStaffMembers' });
 };

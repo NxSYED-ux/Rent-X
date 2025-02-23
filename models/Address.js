@@ -30,9 +30,9 @@ const Address = sequelize.define('Address', {
 });
 
 Address.associate = (model) => {
-    Address.hasMany(model.Users, { foreignKey: 'address_id', as: 'users' });
-    Address.hasMany(model.Organizations, { foreignKey: 'address_id', as: 'organizations' });
-    Address.hasMany(model.Buildings, { foreignKey: 'address_id', as: 'buildings' });
+    Address.hasOne(model.Users, { foreignKey: 'address_id', as: 'user' });
+    Address.hasOne(model.Organizations, { foreignKey: 'address_id', as: 'organization' });
+    Address.hasOne(model.Buildings, { foreignKey: 'address_id', as: 'building' });
 };
 
 module.exports = Address;

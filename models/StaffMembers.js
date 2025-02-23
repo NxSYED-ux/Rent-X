@@ -103,6 +103,8 @@ StaffMembers.associate = (model) => {
     StaffMembers.belongsTo(model.Buildings, { foreignKey: "organization_id", as: 'organization' });
     StaffMembers.belongsTo(model.Users, { foreignKey: "created_by", as: "creator" });
     StaffMembers.belongsTo(model.Users, { foreignKey: "updated_by", as: "updater" });
+    
+    StaffMembers.hasMany(model.Queries, {foreignKey: "staff_member_id", as: 'queries' });
 };
 
 module.exports = StaffMembers;

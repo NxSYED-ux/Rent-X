@@ -16,11 +16,11 @@ const authMiddleware = (options = { tokenSource: 'header' }) => (req, res, next)
     try {
         const decoded = verifyToken(token);
 
-        if (!decoded || !decoded.id) {
+        if (!decoded || !decoded.user.id) {
             return res.status(403).json({ message: 'Invalid or malformed token' });
         }
-
-        req.user = { id: decoded.id };
+        req.user = { id: decoded.user.id, role_id: decoded.user.role_id };
+        console.log(req.user);
         next();
     } catch (error) {
         res.status(403).json({ message: 'Invalid or expired token' });
