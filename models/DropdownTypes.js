@@ -29,16 +29,6 @@ const DropdownTypes = sequelize.define("DropdownTypes", {
         allowNull: false,
         defaultValue: 1
     },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: DataTypes.NOW
-    }
 }, {
     tableName: "dropdowntypes",
     timestamps: true,
@@ -48,7 +38,6 @@ const DropdownTypes = sequelize.define("DropdownTypes", {
 
 DropdownTypes.associate = (model) => {
     DropdownTypes.belongsTo(model.DropdownTypes, { foreignKey: "parent_value_id", as: "parent" });
-    
     DropdownTypes.hasMany(model.DropdownTypes, { foreignKey: "parent_value_id", as: "childs" });
     DropdownTypes.hasMany(model.DropdownValues, { foreignKey: "dropdown_type_id", as: "values" });
 };

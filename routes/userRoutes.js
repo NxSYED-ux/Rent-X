@@ -9,6 +9,7 @@ const {organizationDetails} = require('../controllers/OrganizationDetailsControl
 const {showFavourites , insertFavorite, deleteFavorite} = require('../controllers/favouritesController');
 const {showMyProperties, myPropertyDetails} = require('../controllers/myPropertiesController');
 const {logQuery, correspondingDepartments, userUnitNames, getQueriesByField, getQueryDetails} = require('../controllers/queryController')
+const { getDropdownValuesByType, getDropdownValuesByValue } = require('../controllers/dropdownController');
 const { Tree, AssignUnit, UnitData } = require('../controllers/webTestingController');
 
 const router = express.Router();
@@ -36,6 +37,9 @@ router.get('/corresponding-departments/:organizationId', authMiddleware(), corre
 router.post('/log-query', authMiddleware(), validatePermission('Log Queries Access'), logQuery);
 router.get('/get-queries', authMiddleware(), validatePermission('View User Queries Access'), getQueriesByField("user_id"));
 router.get('/query/:id', authMiddleware(), validatePermission('View User Queries Access'), getQueryDetails);
+
+router.get('/values-by-type/:type', getDropdownValuesByType);
+router.get('/values-by-value/:value', getDropdownValuesByValue);
 
 router.get('/BuildingTree/:id', authMiddleware(), Tree);
 router.get('/Unit/:id', UnitData);
