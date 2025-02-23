@@ -129,6 +129,7 @@ const homePage = async (req, res) => {
             units: availableUnits,
         });
     } catch (error) {
+        console.error("Error in homepage:", error);
         res.status(500).json({ error: error.message || 'An error occurred while fetching home page data.' });
     }
 };

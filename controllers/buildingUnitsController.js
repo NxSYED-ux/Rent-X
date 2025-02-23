@@ -58,9 +58,8 @@ const specificBuildingUnits = async (req, res) => {
         
         res.status(200).json({ buildingUnits : data, });
     } catch (error) {
-        res.status(500).json({
-            error: error.message || 'An error occurred while fetching specific Building Units.',
-        });
+        console.error("Error in specificBuildingUnits:", error);
+        res.status(500).json({ error: error.message || 'An error occurred while fetching specific Building Units.' });
     }
 };
 

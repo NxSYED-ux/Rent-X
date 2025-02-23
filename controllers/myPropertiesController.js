@@ -69,6 +69,7 @@ const showMyProperties = async (req, res) => {
             myPropertiesData: data,
         });
     } catch (error) {
+        console.error("Error in showMyProperties:", error);
         res.status(500).json({
             error: error.message || 'An error occurred while fetching My Properties data.',
         });
@@ -124,6 +125,7 @@ const myPropertyDetails = async (req, res) => {
             Details: myUnitDetails,
         });
     } catch (error) {
+        console.error("Error in myPropertyDetails:", error);
         res.status(500).json({ error: error.message || 'An error occurred while fetching details page data.' });
     }
 };

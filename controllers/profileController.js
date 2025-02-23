@@ -29,6 +29,7 @@ const UserProfile = async (req, res) => {
 
         res.status(200).json({user: data});
     } catch (error) {
+        console.error("Error in UserProfile:", error);
         res.status(500).json({ error: error.message || 'An error occurred while fetching user profile data.' });
     }
 };
@@ -102,6 +103,7 @@ const UpdateProfileData = async (req, res) => {
         
     } catch (error) {
         await transaction.rollback();
+        console.error("Error in UpdateProfileData:", error);
         res.status(500).json({ error: error.message || "An error occurred while updating user profile data." });
     }
 }
@@ -217,9 +219,9 @@ const RemoveProfilePic = async (req, res) => {
         });
         
     } catch (error) {
+        console.error("Error in RemoveProfilePic:", error);
         res.status(500).json({ error: error.message || "An error occurred while removing profile picture." });
     }
 };
-
 
 module.exports = { UserProfile , UpdateProfileData, UploadProfilePic, RemoveProfilePic };

@@ -30,6 +30,7 @@ const userUnitNames = async (req, res) => {
         
         res.json({ units: formattedUnits});
     } catch (error) {
+        console.error("Error in userUnitNames:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
@@ -49,6 +50,7 @@ const correspondingDepartments = async (req, res) => {
         
         res.json({ departments });
     } catch {
+        console.error("Error in correspondingDepartments:", error);
         res.status(500).json({ error: "Internal server error"});
     }
 };
@@ -145,6 +147,7 @@ const logQuery = async (req, res) => {
         
     } catch (error) {
         await transaction.rollback();
+        console.error("Error in logQuery:", error);
         res.status(500).json({ error: error.message || "Failed to assign query, try again later." });
     }
 };
@@ -155,20 +158,23 @@ const getQueriesByField = (field) => async (req, res) => {
     }
     let userId;
     if(field === 'user_id') {
-        Id = req.user.id;
+        userId = req.user.id;
     }
     else if (field === 'staff_member_id') {
-        const satffData = await StaffMembers.findOne({
+        const staffData = await StaffMembers.findOne({
             where: { user_id: req.user.id },
         })
-        if (!satffData) {
+        if (!staffData) {
             return res.status(400).json({ error: "Only staff member can access this" });
         }
-        Id = satffData.id;
+        userId = staffData.id;
+    }else{
+        return res.status(400).json({ error: "Invalid field parameter" });
     }
+    
     const { statuses } = req.query;
     
-    if (!statuses) {
+    if (!statuses || !statuses.trim()) {
         return res.status(400).json({ error: "Statuses are required" });
     }
     
@@ -177,8 +183,8 @@ const getQueriesByField = (field) => async (req, res) => {
     try {
         const queries = await Queries.findAll({
             where: {
-                [field]: Id,
-                status: { [Op.or]: statusArray }
+                [field]: userId,
+                status: { [Op.in]: statusArray }
             },
             include: [
                 {
@@ -192,6 +198,7 @@ const getQueriesByField = (field) => async (req, res) => {
         
         res.status(200).json({ queries });
     } catch (error) {
+        console.error("Error in getQueriesByField:", error);
         res.status(500).json({ error: "Failed to retrieve queries" });
     }
 };
@@ -222,7 +229,7 @@ const getQueryDetails = async (req, res) => {
         
         res.status(200).json({ query });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getQueryDetails:", error);
         res.status(500).json({ error: "Failed to retrieve query details" });
     }
 };

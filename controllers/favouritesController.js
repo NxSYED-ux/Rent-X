@@ -65,6 +65,7 @@ const showFavourites = async (req, res) => {
             favorites: data,
         });
     } catch (error) {
+        console.error("Error in showFavourites:", error);
         res.status(500).json({
             error: error.message || 'An error occurred while fetching favorites data.',
         });
@@ -107,6 +108,7 @@ const insertFavorite = async (req, res) => {
             message: 'Favorite added successfully.',
         });
     } catch (error) {
+        console.error("Error in insertFavorite:", error);
         res.status(500).json({
             error: error.message || 'An error occurred while adding the favorite.',
         });

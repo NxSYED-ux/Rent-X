@@ -63,6 +63,7 @@ const unitDetails = async (req, res) => {
             unitDetails: UnitDetails,
         });
     } catch (error) {
+        console.error("Error in unitDetails:", error);
         res.status(500).json({ error: error.message || 'An error occurred while fetching details page data.' });
     }
 };

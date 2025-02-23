@@ -41,9 +41,8 @@ const login = (role) => async (req, res) => {
         });
         
     } catch (error) {
-        return res.status(500).json({
-            error: 'Internal server error',
-        });
+        console.error("Error in login:", error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -55,6 +54,7 @@ const logout = async (req, res) => {
         
         return res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
+        console.error("Error in logout:", error);
         return res.status(500).json({ message: 'Internal server error' });
     }
 };
@@ -106,10 +106,8 @@ const forgetPassword = async (req, res) => {
         });
         return res.status(200).json({ message: 'Password reset link sent to your email!' });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-        });
+        console.error("Error in forgetPassword:", error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -132,6 +130,7 @@ const validateResetPassword = async (req, res) => {
         }
     } catch (error) {
         if (error.name === 'TokenExpiredError') return res.status(400).json({ error: 'Token has expired.' });
+        console.error("Error in validateResetPassword:", error);
         return res.status(500).json({ message: 'Internal server error.' });
     }
 };
@@ -155,6 +154,7 @@ const resetPassword = async (req, res) => {
         return res.status(200).json({ message: 'Password reset successful.' });
     } catch (error) {
         if (error.name === 'TokenExpiredError') return res.status(400).json({ error: 'Token has expired.' });
+        console.error("Error in resetPassword:", error);
         return res.status(500).json({ error: 'Internal server error. Please try again later.' });
     }
 };
