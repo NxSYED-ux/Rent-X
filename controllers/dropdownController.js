@@ -9,12 +9,13 @@ const getDropdownValuesByType = async (req, res) => {
         }
         
         const data = await DropdownTypes.findAll({
-            where: { type_name: name },
+            where: { type_name: name ,status: 1 },
             attributes: [ ],
             include: [
                 {
                     model: DropdownValues,
                     as: 'values',
+                    where: { status: 1 },
                     attributes: ['value_name'],
                 },
             ],
@@ -39,12 +40,13 @@ const getDropdownValuesByValue = async (req, res) => {
         }
         
         const data = await DropdownValues.findAll({
-            where: { value_name: name },
+            where: { value_name: name, status: 1},
             attributes: [ ],
             include: [
                 {
                     model: DropdownValues,
                     as: 'childs',
+                    where: { status: 1 },
                     attributes: ['value_name'],
                 },
             ],
