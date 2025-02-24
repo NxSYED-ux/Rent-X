@@ -234,4 +234,41 @@ const getQueryDetails = async (req, res) => {
     }
 };
 
-module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails};
+const acceptOrRejectQuery = (status) => async (req, res) => {
+    const queryId = req.params?.id;
+    const expected_closure_date = req.query?.date;
+    const remarks = req.query?.remarks;
+    
+    if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+    
+    if (!queryId) {
+        return res.status(400).json({ error: "Query id is required" });
+    }
+    
+    if (status === "Rejected" && (!remarks || remarks.trim().length === 0)) {
+        return res.status(400).json({ error: "Remarks are required for rejection" });
+    }
+    
+    try {
+        const [updatedRows] = await Queries.update(
+            {
+                status: status === "Rejected" ? "Rejected" : "In Progress",
+                remarks: status === "Rejected" ? remarks : null,
+                expected_closure_date: status === "Rejected" ? new Date().toISOString().split('T')[0] : expected_closure_date,
+            },
+            // { where: { id: queryId, status: 'Open', staff_member_id: req.user.id } }
+            { where: { id: queryId, status: 'Open' } }
+        );
+        
+        if (updatedRows === 0) {
+            return res.status(400).json({ error: "Unable to update status: The query ID may be invalid or the query status is already changed" });
+        }
+        
+        res.status(200).json({ message: "Status changed successfully" });
+    } catch (error) {
+        console.error("Error in acceptOrRejectQuery:", error);
+        res.status(500).json({ error: "Failed to update query status" });
+    }
+};
+
+module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails, acceptOrRejectQuery};

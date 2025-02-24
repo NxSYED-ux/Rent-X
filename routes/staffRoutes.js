@@ -2,7 +2,7 @@ const express = require('express');
 const authMiddleware  = require('../middlewares/authMiddleware');
 const validatePermission = require("../middlewares/validatePermission");
 const {UserProfile, UpdateProfileData, UploadProfilePic, RemoveProfilePic} = require('../controllers/profileController');
-const {getQueriesByField, getQueryDetails} = require('../controllers/queryController')
+const {getQueriesByField, getQueryDetails, acceptOrRejectQuery} = require('../controllers/queryController')
 
 const router = express.Router();
 
@@ -13,5 +13,7 @@ router.post('/updateProfilePic', authMiddleware(), validatePermission('Upload Pr
 
 router.get('/get-queries', authMiddleware(), validatePermission('View Staff Queries Access'), getQueriesByField("staff_member_id"));
 router.get('/query/:id', authMiddleware(), validatePermission('View Staff Queries Access'), getQueryDetails);
+router.put('/reject-query/:id', authMiddleware(), acceptOrRejectQuery('Rejected'));
+router.put('/accept-query/:id', authMiddleware(), acceptOrRejectQuery('Accept'));
 
 module.exports = router;

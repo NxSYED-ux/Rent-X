@@ -45,7 +45,6 @@ const login = (appIdentifier) => async (req, res) => {
         const isPasswordValid = await bcrypt.compare(password, hashedPassword);
         if (!isPasswordValid) return res.status(401).json({ error: 'Invalid email or password' });
         
-        // Run permission queries in parallel
         const [userPermissionRecords, rolePermissionRecords] = await Promise.all([
             UserPermissions.findAll({
                 where: { user_id: user.id },

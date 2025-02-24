@@ -6,7 +6,7 @@ const UnitPictures = require("../models/UnitPictures");
 const UserBuildingUnits = require("../models/UserBuildingUnits");
 const Users = require("../models/Users");
 
-const WebTestingController = async (req, res) => {
+const Tree = async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
         
@@ -167,4 +167,4 @@ const AssignUnit = async (req, res) => {
     }
 };
 
-module.exports = { Tree: WebTestingController, UnitData, AssignUnit };
+module.exports = { Tree, UnitData, AssignUnit };
