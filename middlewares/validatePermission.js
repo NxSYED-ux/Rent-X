@@ -15,7 +15,7 @@ const validatePermission = (requiredPermissionName) => {
 
             const checkPermission = await Permission.findOne({ where: { name: requiredPermissionName, status: 1 }, attributes: ['id'] });
             if (!checkPermission) {
-                return res.status(400).json({ error: `Access Denied: The permission "${requiredPermissionName}" is either inactive or does not exist.` });
+                return res.status(400).json({ error: `Access Denied: The permission for "${requiredPermissionName}" is either inactive or does not exist.` });
             }
 
             const permissionId = checkPermission.id;

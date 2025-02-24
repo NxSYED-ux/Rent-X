@@ -24,7 +24,7 @@ const userAppPermissions = [
 
 const staffAppPermissions = [
     "View Staff Queries Access"
-]
+];
 
 const login = (appIdentifier) => async (req, res) => {
     const { email, password } = req.body;
