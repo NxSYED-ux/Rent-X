@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 23, 2025 at 06:09 PM
+-- Generation Time: Feb 24, 2025 at 05:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -263,7 +263,7 @@ CREATE TABLE `dropdowntypes` (
 INSERT INTO `dropdowntypes` (`id`, `type_name`, `description`, `parent_value_id`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Country', NULL, NULL, 1, '2024-11-17 02:41:29', '2024-11-17 02:41:29'),
 (2, 'Province', NULL, 1, 1, '2024-11-17 02:41:41', '2024-11-17 02:59:42'),
-(3, 'City', NULL, 2, 1, '2024-11-17 02:41:51', '2024-11-17 03:03:16'),
+(3, 'City', NULL, 2, 1, '2024-11-17 02:41:51', '2025-02-24 06:14:25'),
 (4, 'Building-type', NULL, NULL, 1, '2024-12-15 20:55:34', '2024-12-15 20:55:34'),
 (5, 'Building-document-type', NULL, NULL, 1, '2024-12-15 20:56:03', '2024-12-15 20:56:03'),
 (6, 'Unit-type', NULL, NULL, 1, '2024-12-17 03:38:34', '2024-12-17 03:38:34');
@@ -292,7 +292,7 @@ CREATE TABLE `dropdownvalues` (
 INSERT INTO `dropdownvalues` (`id`, `value_name`, `description`, `dropdown_type_id`, `parent_value_id`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Pakistan', NULL, 1, NULL, 1, '2024-11-17 07:39:48', '2024-12-18 21:02:20'),
 (2, 'Punjab', NULL, 2, 1, 1, '2024-11-17 07:56:19', '2024-11-17 07:56:19'),
-(3, 'Lahore', NULL, 3, 2, 1, '2024-11-17 07:57:59', '2024-11-17 08:25:00'),
+(3, 'Lahore', NULL, 3, 2, 1, '2024-11-17 07:57:59', '2025-02-24 06:12:42'),
 (4, 'Sindh', NULL, 2, 1, 1, '2024-11-18 06:44:09', '2024-11-18 06:44:09'),
 (5, 'Karachi', NULL, 3, 4, 1, '2024-11-18 06:44:53', '2024-11-18 06:44:53'),
 (6, 'Balochistan', NULL, 2, 1, 1, '2024-12-14 17:03:16', '2024-12-14 17:03:16'),
@@ -350,7 +350,8 @@ INSERT INTO `favorites` (`id`, `user_id`, `unit_id`, `created_at`) VALUES
 (47, 6, 2, '2024-12-21 03:25:43'),
 (49, 4, 13, '2025-02-15 13:54:15'),
 (50, 4, 10, '2025-02-15 13:56:30'),
-(51, 4, 7, '2025-02-15 13:56:31');
+(51, 4, 7, '2025-02-15 13:56:31'),
+(56, 3, 2, '2025-02-24 15:16:40');
 
 -- --------------------------------------------------------
 
@@ -454,7 +455,11 @@ INSERT INTO `permissions` (`id`, `name`, `description`, `created_at`, `updated_a
 (5, 'Show My Properties Access', NULL, '2025-02-23 15:38:00', '2025-02-23 16:56:50', 1),
 (6, 'Log Queries Access', NULL, '2025-02-23 15:38:00', '2025-02-23 16:56:50', 1),
 (7, 'View User Queries Access', NULL, '2025-02-23 15:38:00', '2025-02-23 16:56:58', 1),
-(8, 'View Staff Queries Access', NULL, '2025-02-23 16:23:59', '2025-02-23 16:56:58', 1);
+(8, 'View Staff Queries Access', NULL, '2025-02-23 16:23:59', '2025-02-23 16:56:58', 1),
+(11, 'View Profile Access', NULL, '2025-02-24 16:30:15', '2025-02-24 16:30:15', 1),
+(12, 'Update Profile Access', NULL, '2025-02-24 16:30:15', '2025-02-24 16:30:15', 1),
+(13, 'Remove Profile Picture Access', NULL, '2025-02-24 16:30:15', '2025-02-24 16:30:15', 1),
+(14, 'Upload Profile Picture Access', NULL, '2025-02-24 16:30:15', '2025-02-24 16:30:15', 1);
 
 -- --------------------------------------------------------
 
@@ -570,7 +575,11 @@ INSERT INTO `rolepermissions` (`id`, `role_id`, `permission_id`, `created_at`, `
 (7, 3, 5, '2025-02-23 16:57:48', '2025-02-23 16:57:48', 1, 1),
 (8, 3, 6, '2025-02-23 16:57:48', '2025-02-23 16:57:48', 1, 1),
 (9, 3, 7, '2025-02-23 16:57:48', '2025-02-23 16:57:48', 1, 1),
-(10, 4, 8, '2025-02-23 16:57:48', '2025-02-23 16:57:48', 1, 1);
+(10, 4, 8, '2025-02-23 16:57:48', '2025-02-23 16:57:48', 1, 1),
+(11, 3, 11, '2025-02-24 16:30:58', '2025-02-24 16:30:58', NULL, 1),
+(12, 3, 12, '2025-02-24 16:30:59', '2025-02-24 16:30:59', NULL, 1),
+(13, 3, 13, '2025-02-24 16:30:59', '2025-02-24 16:30:59', NULL, 1),
+(14, 3, 14, '2025-02-24 16:30:59', '2025-02-24 16:30:59', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1092,7 +1101,7 @@ ALTER TABLE `dropdownvalues`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `organizationdocuments`
@@ -1116,7 +1125,7 @@ ALTER TABLE `organizations`
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `queries`
@@ -1134,7 +1143,7 @@ ALTER TABLE `querypictures`
 -- AUTO_INCREMENT for table `rolepermissions`
 --
 ALTER TABLE `rolepermissions`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1164,7 +1173,7 @@ ALTER TABLE `userbuildingunits`
 -- AUTO_INCREMENT for table `userpermissions`
 --
 ALTER TABLE `userpermissions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
