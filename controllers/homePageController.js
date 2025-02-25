@@ -25,14 +25,14 @@ const homePage = async (req, res) => {
             maxPrice,
             unitType,
             saleOrRent,
-            location,
+            city,
             limit = 20,
             offset = 0,
             exclude_unit,
         } = req.query;
 
         const filters = {
-            sale_or_rent: saleOrRent && saleOrRent !== 'any' ? saleOrRent : { [Op.ne]: 'Not Available' },
+            sale_or_rent: Array.isArray(saleOrRent) && saleOrRent.length ? { [Op.in]: saleOrRent } : { [Op.ne]: 'Not Available' },
             availability_status: 'Available',
             status: 'Approved',
         };
@@ -48,16 +48,12 @@ const homePage = async (req, res) => {
         } else if (maxPrice) {
             filters.price = { [Op.lte]: parseFloat(maxPrice) };
         }
-
-        if (unitType) {
-            const types = unitType.split(',').map((type) => type.trim());
-            filters.unit_type = types.length > 1 ? { [Op.in]: types } : types[0];
+        
+        if (Array.isArray(unitType) && unitType.length) {
+            filters.unit_type = { [Op.in]: unitType };
         }
-
-        const locationFilters = {};
-        if (location) {
-            locationFilters.location = { [Op.like]: `%${location}%` };
-        }
+        
+        const cityFilters = city ? { city: { [Op.eq]: city } } : {};
 
         let searchFilter = {};
 
@@ -97,7 +93,7 @@ const homePage = async (req, res) => {
                                     model: Address,
                                     as: 'address',
                                     attributes: ['location', 'city', 'province', 'country'],
-                                    where: Object.keys(locationFilters).length ? locationFilters : undefined,
+                                    where: Object.keys(cityFilters).length ? cityFilters : undefined,
                                     required: true,
                                 },
                             ],

@@ -13,7 +13,7 @@ router.post('/updateProfilePic', authMiddleware(), validatePermission('Upload Pr
 
 router.get('/get-queries', authMiddleware(), validatePermission('View Staff Queries Access'), getQueriesByField("staff_member_id"));
 router.get('/query/:id', authMiddleware(), validatePermission('View Staff Queries Access'), getQueryDetails);
-router.put('/reject-query/:id', authMiddleware(), acceptOrRejectQuery('Rejected'));
-router.put('/accept-query/:id', authMiddleware(), acceptOrRejectQuery('Accept'));
+router.put('/reject-query/:id/:date', authMiddleware(), acceptOrRejectQuery('Rejected'));
+router.put('/accept-query/:id/:date', authMiddleware(), acceptOrRejectQuery('Accept'));
 
 module.exports = router;

@@ -236,7 +236,7 @@ const getQueryDetails = async (req, res) => {
 
 const acceptOrRejectQuery = (status) => async (req, res) => {
     const queryId = req.params?.id;
-    const expected_closure_date = req.query?.date;
+    const closure_date = req.params?.date;
     const remarks = req.query?.remarks;
     
     if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
@@ -254,10 +254,9 @@ const acceptOrRejectQuery = (status) => async (req, res) => {
             {
                 status: status === "Rejected" ? "Rejected" : "In Progress",
                 remarks: status === "Rejected" ? remarks : null,
-                expected_closure_date: status === "Rejected" ? new Date().toISOString().split('T')[0] : expected_closure_date,
+                expected_closure_date: closure_date,
             },
-            // { where: { id: queryId, status: 'Open', staff_member_id: req.user.id } }
-            { where: { id: queryId, status: 'Open' } }
+            { where: { id: queryId, status: 'Open', staff_member_id: req.user.id } }
         );
         
         if (updatedRows === 0) {

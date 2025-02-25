@@ -19,14 +19,16 @@ const validatePermission = (requiredPermissionName) => {
             }
 
             const permissionId = checkPermission.id;
-            const userPermissionExists = await UserPermission.findOne({
-                where: { user_id: userId, permission_id: permissionId },
-            });
-
-            const rolePermissionExists = await RolePermission.findOne({
-                where: { role_id: userRoleId, permission_id: permissionId },
-            });
-
+            
+            const [userPermissionExists, rolePermissionExists] = await Promise.all([
+                UserPermission.findOne({
+                    where: { user_id: userId, permission_id: permissionId },
+                }),
+                RolePermission.findOne({
+                    where: { role_id: userRoleId, permission_id: permissionId },
+                }),
+            ]);
+            
             if (userPermissionExists || rolePermissionExists) {
                 return next();
             }
