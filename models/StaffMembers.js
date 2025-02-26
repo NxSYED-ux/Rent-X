@@ -43,10 +43,6 @@ const StaffMembers = sequelize.define("StaffMembers", {
             key: "id"
         }
     },
-    is_manager: {
-        type: DataTypes.TINYINT,
-        allowNull: false
-    },
     salary: {
         type: DataTypes.DECIMAL(8,1),
         allowNull: true

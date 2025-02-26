@@ -34,6 +34,7 @@ const BuildingLevels = sequelize.define('BuildingLevels', {
     },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -41,6 +42,7 @@ const BuildingLevels = sequelize.define('BuildingLevels', {
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -79,4 +81,3 @@ BuildingLevels.associate = (model) => {
 };
 
 module.exports = BuildingLevels;
-

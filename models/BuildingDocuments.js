@@ -27,6 +27,14 @@ const BuildingDocuments = sequelize.define('BuildingDocuments', {
         type: DataTypes.STRING(50),
         allowNull: false,
     },
+    issue_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+    },
+    expiry_date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+    }
 }, {
     tableName: 'buildingDocuments',
     timestamps: true,

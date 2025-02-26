@@ -15,24 +15,14 @@ const homePage = async (req, res) => {
             attributes: ['name', 'picture'],
         });
 
-        if (!userData) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        if (!userData) return res.status(404).json({ error: 'User not found' });
 
         const {
-            search,
-            minPrice,
-            maxPrice,
-            unitType,
-            saleOrRent,
-            city,
-            limit = 20,
-            offset = 0,
-            exclude_unit,
+            search, minPrice, maxPrice, unitType, saleOrRent, city, limit = 20, offset = 0, exclude_unit,
         } = req.query;
 
         const filters = {
-            sale_or_rent: Array.isArray(saleOrRent) && saleOrRent.length ? { [Op.in]: saleOrRent } : { [Op.ne]: 'Not Available' },
+            sale_or_rent: saleOrRent ? { [Op.in]: saleOrRent.split(',').map(type => type.trim()) } : { [Op.ne]: 'Not Available' },
             availability_status: 'Available',
             status: 'Approved',
         };
@@ -43,27 +33,22 @@ const homePage = async (req, res) => {
         
         if (minPrice && maxPrice) {
             filters.price = { [Op.between]: [parseFloat(minPrice), parseFloat(maxPrice)] };
-        } else if (minPrice) {
-            filters.price = { [Op.gte]: parseFloat(minPrice) };
-        } else if (maxPrice) {
-            filters.price = { [Op.lte]: parseFloat(maxPrice) };
         }
         
-        if (Array.isArray(unitType) && unitType.length) {
-            filters.unit_type = { [Op.in]: unitType };
+        if (unitType) {
+            const types = unitType.split(',').map((type) => type.trim());
+            filters.unit_type = types.length > 1 ? { [Op.in]: types } : types[0];
         }
         
         const cityFilters = city ? { city: { [Op.eq]: city } } : {};
 
         let searchFilter = {};
-
+        
         if (search) {
             searchFilter = {
                 [Op.or]: [
                     { '$level.building.address.location$': { [Op.like]: `%${search}%` } },
-                    { '$level.building.address.city$': { [Op.like]: `%${search}%` } },
                     { '$level.building.address.province$': { [Op.like]: `%${search}%` } },
-                    { '$level.building.address.country$': { [Op.like]: `%${search}%` } },
                     { '$level.level_name$': { [Op.like]: `%${search}%` } },
                     { '$level.building.name$': { [Op.like]: `%${search}%` } },
                     { unit_name: { [Op.like]: `%${search}%` } },
@@ -73,8 +58,7 @@ const homePage = async (req, res) => {
         
         const availableUnits = await BuildingUnits.findAll({
             where: {
-                ...filters,
-                ...searchFilter,
+                ...filters, ...searchFilter,
             },
             include: [
                 {

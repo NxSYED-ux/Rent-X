@@ -22,6 +22,12 @@ const Address = sequelize.define('Address', {
     postal_code: { 
         type: DataTypes.STRING
     },
+    latitude: {
+        type: DataTypes.DECIMAL(10,8),
+    },
+    longitude: {
+        type: DataTypes.DECIMAL(10,8),
+    }
 }, {
     tableName: 'address',
     timestamps: true,

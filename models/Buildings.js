@@ -12,6 +12,7 @@ const Buildings = sequelize.define('Buildings', {
   },
   organization_id: {
     type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
     references: {
       model: Organizations,
       key: 'id',
@@ -27,6 +28,7 @@ const Buildings = sequelize.define('Buildings', {
   },
   address_id: {
     type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
     references: {
       model: Address,
       key: 'id',
