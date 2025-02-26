@@ -6,14 +6,14 @@ const {getQueriesByField, getQueryDetails, acceptOrRejectQuery} = require('../co
 
 const router = express.Router();
 
-router.get('/profile', authMiddleware(), validatePermission('View Profile Access'), UserProfile);
-router.put('/profile', authMiddleware(), validatePermission('Update Profile Access'), UpdateProfileData);
-router.put('/removeProfilePic', authMiddleware(), validatePermission('Remove Profile Picture Access'), RemoveProfilePic);
-router.post('/updateProfilePic', authMiddleware(), validatePermission('Upload Profile Picture Access'), UploadProfilePic);
+router.get('/profile', authMiddleware, validatePermission('View Profile Access'), UserProfile);
+router.put('/profile', authMiddleware, validatePermission('Update Profile Access'), UpdateProfileData);
+router.put('/removeProfilePic', authMiddleware, validatePermission('Remove Profile Picture Access'), RemoveProfilePic);
+router.post('/updateProfilePic', authMiddleware, validatePermission('Upload Profile Picture Access'), UploadProfilePic);
 
-router.get('/get-queries', authMiddleware(), validatePermission('View Staff Queries Access'), getQueriesByField("staff_member_id"));
-router.get('/query/:id', authMiddleware(), validatePermission('View Staff Queries Access'), getQueryDetails);
-router.put('/reject-query/:id/:date', authMiddleware(), acceptOrRejectQuery('Rejected'));
-router.put('/accept-query/:id/:date', authMiddleware(), acceptOrRejectQuery('Accept'));
+router.get('/get-queries', authMiddleware, validatePermission('View Staff Queries Access'), getQueriesByField("staff_member_id"));
+router.get('/query/:id', authMiddleware, validatePermission('View Staff Queries Access'), getQueryDetails);
+router.put('/reject-query/:id/:date', authMiddleware, acceptOrRejectQuery('Rejected'));
+router.put('/accept-query/:id/:date', authMiddleware, acceptOrRejectQuery('Accept'));
 
 module.exports = router;
