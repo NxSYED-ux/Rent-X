@@ -18,6 +18,7 @@ const Roles = sequelize.define('Roles', {
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
+        defaultValue: 1,
     },
 }, {
     tableName: 'roles',

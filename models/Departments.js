@@ -15,7 +15,7 @@ const Departments = sequelize.define("Department", {
     },
     description: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true
     },
     organization_id: {
         type: DataTypes.BIGINT.UNSIGNED,
@@ -27,7 +27,7 @@ const Departments = sequelize.define("Department", {
     },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: "id"
@@ -35,22 +35,12 @@ const Departments = sequelize.define("Department", {
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: "id"
         }
     },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: DataTypes.NOW
-    }
 }, {
     tableName: "departments",
     timestamps: true,
@@ -81,6 +71,7 @@ Departments.associate = (model) => {
     Departments.belongsTo(model.Organizations, { foreignKey: "organization_id", as: 'organization'});
     
     Departments.hasMany(model.StaffMembers, { foreignKey: 'department_id', as: 'staffMembers' });
+    Departments.hasMany(model.Queries, { foreignKey: 'department_id', as: 'queries' });
 };
 
 

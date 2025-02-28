@@ -26,6 +26,10 @@ const RolePermissions = sequelize.define('RolePermissions', {
             key: 'id',
         },
     },
+    name: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
@@ -33,17 +37,37 @@ const RolePermissions = sequelize.define('RolePermissions', {
     },
     granted_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
         },
     },
+    header: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+    }
 }, {
     tableName: 'rolePermissions',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+});
+
+RolePermissions.addHook('beforeCreate', (record, options) => {
+    if (options.user) {
+        record.granted_by = options.user.id;
+    } else {
+        throw new Error('User not provided in options');
+    }
+});
+
+RolePermissions.addHook('beforeUpdate', (record, options) => {
+    if (options.user) {
+        record.granted_by = options.user.id;
+    } else {
+        throw new Error('User not provided in options');
+    }
 });
 
 RolePermissions.associate = (model) => {

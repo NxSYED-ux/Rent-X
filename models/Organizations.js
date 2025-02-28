@@ -21,6 +21,7 @@ const Organizations = sequelize.define('Organizations', {
     },
     address_id: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Address,
             key: 'id',
@@ -28,6 +29,7 @@ const Organizations = sequelize.define('Organizations', {
     },
     owner_id: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -43,9 +45,19 @@ const Organizations = sequelize.define('Organizations', {
     },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Users,
+            key: 'id',
+        },
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: Users,
+            key: 'id',
+        },
     },
 }, {
     tableName: 'organizations',

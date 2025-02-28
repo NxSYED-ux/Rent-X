@@ -25,14 +25,11 @@ const Favorites = sequelize.define('Favorites', {
             key: 'id',
         },
     },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-    },
 }, {
-    tableName: 'favorites',
-    timestamps: false,
+        tableName: 'favorites',
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "updated_at"
 });
 
 Favorites.associate = (model) => {

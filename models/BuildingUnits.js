@@ -54,6 +54,8 @@ const BuildingUnits = sequelize.define('BuildingUnits', {
     },
     price: {
         type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
     },
     area: {
         type: DataTypes.DECIMAL(10, 2),
@@ -65,9 +67,11 @@ const BuildingUnits = sequelize.define('BuildingUnits', {
     },
     description: {
         type: DataTypes.TEXT,
+        allowNull: true,
     },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -75,6 +79,7 @@ const BuildingUnits = sequelize.define('BuildingUnits', {
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -114,7 +119,7 @@ BuildingUnits.associate = (model) => {
     BuildingUnits.hasMany(model.UserBuildingUnits, { foreignKey: 'unit_id', as: 'userUnits' });
     BuildingUnits.hasMany(model.UnitPictures, { foreignKey: 'unit_id', as: 'pictures' });
     BuildingUnits.hasMany(model.Favorites, { foreignKey: 'unit_id', as: 'favorites' });
-    BuildingUnits.hasMany(model.Queries, { foreignKey: 'unit_id', as: 'query' });
+    BuildingUnits.hasMany(model.Queries, { foreignKey: 'unit_id', as: 'queries' });
 };
 
 module.exports = BuildingUnits;

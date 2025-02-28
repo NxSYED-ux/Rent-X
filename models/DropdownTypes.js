@@ -16,7 +16,7 @@ const DropdownTypes = sequelize.define("DropdownTypes", {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    parent_value_id: {
+    parent_type_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
         references: {
@@ -38,6 +38,7 @@ const DropdownTypes = sequelize.define("DropdownTypes", {
 
 DropdownTypes.associate = (model) => {
     DropdownTypes.belongsTo(model.DropdownTypes, { foreignKey: "parent_value_id", as: "parent" });
+    
     DropdownTypes.hasMany(model.DropdownTypes, { foreignKey: "parent_value_id", as: "childs" });
     DropdownTypes.hasMany(model.DropdownValues, { foreignKey: "dropdown_type_id", as: "values" });
 };

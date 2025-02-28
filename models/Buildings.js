@@ -107,6 +107,7 @@ Buildings.associate = (model) => {
   Buildings.hasMany(model.BuildingLevels, { foreignKey: 'building_id', as: 'levels' });
   Buildings.hasMany(model.BuildingUnits, { foreignKey: 'building_id', as: 'units' });
   Buildings.hasMany(model.StaffMembers, { foreignKey: 'building_id', as: 'staffMembers' });
+  Buildings.hasMany(model.Queries, { foreignKey: 'building_id', as: 'queries' });
 };
 
 module.exports = Buildings;

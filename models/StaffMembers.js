@@ -45,16 +45,27 @@ const StaffMembers = sequelize.define("StaffMembers", {
     },
     salary: {
         type: DataTypes.DECIMAL(8,1),
-        allowNull: true
+        allowNull: false,
+        defaultValue: 0
     },
     active_load: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0
     },
+    status: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 1
+    },
+    accept_queries: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 1
+    },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: "id"
@@ -62,7 +73,7 @@ const StaffMembers = sequelize.define("StaffMembers", {
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: "id"
@@ -96,7 +107,7 @@ StaffMembers.associate = (model) => {
     StaffMembers.belongsTo(model.Users, { foreignKey: "user_id", as: 'staffMember' });
     StaffMembers.belongsTo(model.Departments, { foreignKey: "department_id", as: 'department' });
     StaffMembers.belongsTo(model.Buildings, { foreignKey: "building_id", as: 'building' });
-    StaffMembers.belongsTo(model.Buildings, { foreignKey: "organization_id", as: 'organization' });
+    StaffMembers.belongsTo(model.Organizations, { foreignKey: "organization_id", as: 'organization' });
     StaffMembers.belongsTo(model.Users, { foreignKey: "created_by", as: "creator" });
     StaffMembers.belongsTo(model.Users, { foreignKey: "updated_by", as: "updater" });
     

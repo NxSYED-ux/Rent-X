@@ -22,10 +22,10 @@ const validatePermission = (requiredPermissionName) => {
             
             const [userPermissionExists, rolePermissionExists] = await Promise.all([
                 UserPermission.findOne({
-                    where: { user_id: userId, permission_id: permissionId },
+                    where: { user_id: userId, permission_id: permissionId, status: 1 },
                 }),
                 RolePermission.findOne({
-                    where: { role_id: userRoleId, permission_id: permissionId },
+                    where: { role_id: userRoleId, permission_id: permissionId, status: 1 },
                 }),
             ]);
             

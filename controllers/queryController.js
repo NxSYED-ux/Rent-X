@@ -90,7 +90,7 @@ const logQuery = async (req, res) => {
         if (!building) throw new Error("Invalid Unit.");
         
         const staffMember = await StaffMembers.findOne({
-            where: { department_id: departmentId, building_id: building.building_id },
+            where: { department_id: departmentId, building_id: building.building_id, status: 1, accept_queries: 1 },
             attributes: ['id', 'user_id', 'active_load'],
             order: [["active_load", "ASC"]],
             lock: transaction.LOCK.UPDATE,

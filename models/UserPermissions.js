@@ -32,7 +32,7 @@ const UserPermissions = sequelize.define('UserPermissions', {
     },
     granted_by: {
         type: DataTypes.BIGINT.UNSIGNED,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',

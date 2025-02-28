@@ -49,6 +49,7 @@ const UserBuildingUnits = sequelize.define('UserBuildingUnits', {
     },
     created_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',
@@ -56,6 +57,7 @@ const UserBuildingUnits = sequelize.define('UserBuildingUnits', {
     },
     updated_by: {
         type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
         references: {
             model: Users,
             key: 'id',

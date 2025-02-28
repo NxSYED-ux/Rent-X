@@ -36,7 +36,7 @@ const Users = sequelize.define('Users', {
     },
     cnic: {
         type: DataTypes.STRING(25),
-        unique: true,
+        allowNull: false,
     },
     phone_no: {
         type: DataTypes.STRING(20),
@@ -44,12 +44,14 @@ const Users = sequelize.define('Users', {
     status: {
         type: DataTypes.TINYINT,
         allowNull: false,
+        defaultValue: 1,
     },
     date_of_birth: {
         type: DataTypes.DATE,
+        allowNull: false,
     },
     gender: {
-        type: DataTypes.ENUM('male', 'female', 'other'),
+        type: DataTypes.ENUM('Male', 'Female', 'Other'),
         allowNull: false,
     },
     picture: {
@@ -98,7 +100,7 @@ Users.associate = (model) => {
     Users.belongsTo(model.Roles, { foreignKey: 'role_id', as: 'role' });
     Users.belongsTo(model.Address, { foreignKey: 'address_id', as: 'address' });
     
-    Users.hasOne(model.Organizations, { foreignKey: 'owner_id', as: 'Organization' });
+    Users.hasOne(model.Organizations, { foreignKey: 'owner_id', as: 'organization' });
     Users.hasMany(model.Organizations, { foreignKey: 'created_by', as: 'createdOrganizations' });
     Users.hasMany(model.Organizations, { foreignKey: 'updated_by', as: 'updatedOrganizations' });
 
@@ -115,7 +117,7 @@ Users.associate = (model) => {
     Users.hasMany(model.UserBuildingUnits, { foreignKey: 'created_by', as: 'createdUserUnits' });
     Users.hasMany(model.UserBuildingUnits, { foreignKey: 'updated_by', as: 'updatedUserUnits' });
 
-    Users.hasMany(model.UserPermissions, { foreignKey: 'user_id', as: 'userPermisssions' });
+    Users.hasMany(model.UserPermissions, { foreignKey: 'user_id', as: 'userPermissions' });
     Users.hasMany(model.UserPermissions, { foreignKey: 'granted_by', as: 'grantedUserPermissions' });
     Users.hasMany(model.RolePermissions, { foreignKey: 'granted_by', as: 'grantedRolePermissions' });
 
@@ -127,6 +129,8 @@ Users.associate = (model) => {
     Users.hasOne(model.StaffMembers, { foreignKey: 'user_id', as: 'staffMember' });
     Users.hasMany(model.StaffMembers, { foreignKey: 'created_by', as: 'createdStaffMembers' });
     Users.hasMany(model.StaffMembers, { foreignKey: 'updated_by', as: 'updatedStaffMembers' });
+    
+    Users.hasMany(model.Queries, { foreignKey: 'user_id', as: 'queries' });
 };
 
 module.exports = Users;

@@ -27,6 +27,12 @@ const OrganizationDocuments = sequelize.define('OrganizationDocuments', {
         type: DataTypes.STRING(50),
         allowNull: false,
     },
+    issue_date: {
+        type: DataTypes.DATE,
+    },
+    expiry_date: {
+        type: DataTypes.DATE,
+    }
 }, {
     tableName: 'organizationDocuments',
     timestamps: true,

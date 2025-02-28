@@ -68,16 +68,6 @@ const Queries = sequelize.define("Queries", {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    }
 }, {
     tableName: "queries",
     timestamps: true,
