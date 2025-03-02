@@ -35,11 +35,13 @@ const UserProfile = async (req, res) => {
 };
 
 const UpdateProfileData = async (req, res) => {
-    const transaction = await sequelize.transaction();
+    let transaction;
     
     try {
+        transaction = await sequelize.transaction();
+        
         const userId = req.user?.id;
-        if (!userId) return res.status(400).json({ error: "User ID is required" });
+        if (!userId) return res.status(400).json({ error: "User ID is required." });
         
         const {
             name,
@@ -54,18 +56,12 @@ const UpdateProfileData = async (req, res) => {
             return res.status(400).json({ error: "Name is required." });
         }
         
-        const updatedUser = await User.update(
-            {
-                name,
-                phone_no,
-                cnic,
-                gender,
-                date_of_birth,
-            },
+        const [userUpdated] = await User.update(
+            { name, phone_no, cnic, gender, date_of_birth },
             { where: { id: userId }, transaction }
         );
         
-        if (updatedUser[0] === 0) {
+        if (!userUpdated) {
             await transaction.rollback();
             return res.status(404).json({ error: "User not found or no changes detected." });
         }
@@ -77,36 +73,31 @@ const UpdateProfileData = async (req, res) => {
                 transaction,
             });
             
-            if (!user || !user.address_id) {
+            if (!user?.address_id) {
                 await transaction.rollback();
-                return res.status(404).json({ error: "Address ID not found for the user." });
+                return res.status(404).json({ error: "Address not found for the user." });
             }
             
-            const updatedAddress = await Address.update(
-                {
-                    location,
-                    city,
-                    province,
-                    country,
-                },
+            const [addressUpdated] = await Address.update(
+                { location, city, province, country },
                 { where: { id: user.address_id }, transaction }
             );
             
-            if (updatedAddress[0] === 0) {
+            if (!addressUpdated) {
                 await transaction.rollback();
                 return res.status(404).json({ error: "Address not found or no changes detected." });
             }
         }
         
         await transaction.commit();
-        res.status(200).json({ message: "Profile updated successfully." });
+        return res.status(200).json({ message: "Profile updated successfully." });
         
     } catch (error) {
-        await transaction.rollback();
+        if (transaction) await transaction.rollback();
         console.error("Error in UpdateProfileData:", error);
-        res.status(500).json({ error: error.message || "An error occurred while updating user profile data." });
+        return res.status(500).json({ error: error.message || "An error occurred while updating the profile." });
     }
-}
+};
 
 const UploadProfilePic = async (req, res) => {
     try {
