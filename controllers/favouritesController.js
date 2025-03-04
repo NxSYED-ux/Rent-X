@@ -32,16 +32,19 @@ const showFavourites = async (req, res) => {
                             model: BuildingLevels,
                             as: 'level',
                             attributes: ['level_name'],
+                            required: true,
                             include: [
                                 {
                                     model: Buildings,
                                     as: 'building',
                                     attributes: ['name'],
+                                    required: true,
                                     include: [
                                         {
                                             model: Address,
                                             as: 'address',
                                             attributes: ['location', 'city', 'province', 'country'],
+                                            required: true,
                                         },
                                     ],
                                 },
@@ -55,7 +58,7 @@ const showFavourites = async (req, res) => {
                     ],
                 },
             ],
-            attributes: ['id','created_at'],
+            attributes: ['created_at'],
             limit: parseInt(limit, 10),
             offset: parseInt(offset, 10),
             order: [['created_at', 'DESC']],
