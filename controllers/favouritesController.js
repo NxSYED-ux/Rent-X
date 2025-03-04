@@ -6,6 +6,28 @@ const BuildingUnits = require('../models/BuildingUnits');
 const UnitPictures = require('../models/UnitPictures');
 const Favorites = require('../models/Favorites');
 
+const favouritesList = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ error: 'User not authenticated.' });
+        }
+        
+        const data = await Favorites.findAll({
+            where: { user_id: req.user.id },
+            attributes: ['unit_id']
+        });
+        
+        res.status(200).json({
+            favorites_list: data,
+        });
+    } catch (error) {
+        console.error("Error in favouritesList:", error);
+        res.status(500).json({
+            error: error.message || 'An error occurred while fetching favorites list.',
+        });
+    }
+};
+
 const showFavourites = async (req, res) => {
     try {
         const { limit = 10, offset = 0 } = req.query;
@@ -150,4 +172,4 @@ const deleteFavorite = async (req, res) => {
     }
 };
 
-module.exports = { showFavourites, insertFavorite, deleteFavorite};
+module.exports = {favouritesList, showFavourites, insertFavorite, deleteFavorite};

@@ -6,7 +6,7 @@ const {homePage} = require("../controllers/homePageController");
 const {unitDetails} = require('../controllers/unitDetailsController');
 const {specificBuildingUnits} = require('../controllers/buildingUnitsController');
 const {organizationDetails} = require('../controllers/OrganizationDetailsController');
-const {showFavourites , insertFavorite, deleteFavorite} = require('../controllers/favouritesController');
+const {favouritesList, showFavourites , insertFavorite, deleteFavorite} = require('../controllers/favouritesController');
 const {showMyProperties, myPropertyDetails} = require('../controllers/myPropertiesController');
 const {logQuery, correspondingDepartments, userUnitNames, getQueriesByField, getQueryDetails} = require('../controllers/queryController')
 const { getDropdownValuesByType, getDropdownValuesByValue } = require('../controllers/dropdownController');
@@ -25,6 +25,7 @@ router.get('/unit_details/:id', authMiddleware, validatePermission('User Homepag
 router.get('/organization_details/:id', authMiddleware, validatePermission('User Homepage Access'), organizationDetails);
 router.get('/building_units/:id', authMiddleware, validatePermission('User Homepage Access'), specificBuildingUnits);
 
+router.get('/favorites-list', authMiddleware, favouritesList);
 router.get('/favorites', authMiddleware, validatePermission('Show Favorites Access'), showFavourites);
 router.post('/favorites', authMiddleware, validatePermission('Add Favorites Access'), insertFavorite);
 router.delete('/favorites/:unit_id', authMiddleware, validatePermission('Remove Favorites Access'), deleteFavorite);
