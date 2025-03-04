@@ -12,6 +12,7 @@ const UserPermissions = require('../models/UserPermissions');
 const { generateToken, verifyToken } = require('../utils/jwt');
 const sendEmail = require('../Services/sendEmail');
 
+
 const userAppPermissions = [
     "User Homepage Access",
     "Show Favorites Access",
@@ -78,7 +79,6 @@ const login = (appIdentifier) => async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
-
 const logout = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];

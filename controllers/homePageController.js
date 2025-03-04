@@ -18,7 +18,7 @@ const homePage = async (req, res) => {
         if (!userData) return res.status(404).json({ error: 'User not found' });
 
         const {
-            search, minPrice, maxPrice, unitType, saleOrRent, city, limit = 20, offset = 0, exclude_unit,
+            search, minPrice, maxPrice, unitType, saleOrRent, city, limit = 10, offset = 0, exclude_unit,
         } = req.query;
 
         const filters = {
@@ -56,7 +56,7 @@ const homePage = async (req, res) => {
             };
         }
         
-        const availableUnits = await BuildingUnits.findAll({
+        const { count, rows: availableUnits } = await BuildingUnits.findAndCountAll({
             where: {
                 ...filters, ...searchFilter,
             },
@@ -107,6 +107,7 @@ const homePage = async (req, res) => {
         res.status(200).json({
             user: userData,
             units: availableUnits,
+            totalCount: count,
         });
     } catch (error) {
         console.error("Error in homepage:", error);
