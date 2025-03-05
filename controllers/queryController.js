@@ -188,9 +188,9 @@ const getQueriesByField = (field) => async (req, res) => {
             },
             include: [
                 {
-                    model: QueryPictures,
-                    as: 'pictures',
-                    attributes: ['file_path'],
+                    model: BuildingUnits,
+                    as: 'unit',
+                    attributes: ['unit_name'],
                 }
             ],
             order: [["created_at", "DESC"]],
