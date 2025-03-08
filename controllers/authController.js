@@ -68,7 +68,6 @@ const login = (appIdentifier) => async (req, res) => {
         if (!hasAccess) {
             return res.status(403).json({ error: "Access Denied: You do not have the required permissions to log in." });
         }
-        console.log(allPermissions);
         return res.status(200).json({
             message: 'Login successful',
             token: generateToken({ id: user.id, role_id: user.role_id })
@@ -79,6 +78,7 @@ const login = (appIdentifier) => async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 const logout = async (req, res) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
