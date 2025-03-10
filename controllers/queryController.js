@@ -236,7 +236,7 @@ const getQueryDetails = async (req, res) => {
 
 const acceptOrRejectQuery = (status) => async (req, res) => {
     const queryId = req.params?.id;
-    const closure_date = req.params?.date;
+    const closure_date = req.body.date;
     const remarks = req.query?.remarks;
     
     if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
