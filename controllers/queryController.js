@@ -250,14 +250,22 @@ const acceptOrRejectQuery = (status) => async (req, res) => {
     }
     
     try {
+        const staffData = await StaffMembers.findOne({
+            where: { user_id: req.user.id },
+        });
+        
         const [updatedRows] = await Queries.update(
             {
                 status: status === "Rejected" ? "Rejected" : "In Progress",
                 remarks: status === "Rejected" ? remarks : null,
                 expected_closure_date: closure_date,
             },
-            { where: { id: queryId, status: 'Open', staff_member_id: req.user.id } }
+            { where: { id: queryId, status: 'Open', staff_member_id: staffData.id } }
         );
+        console.log(status);
+        console.log(queryId);
+        console.log(req.user.id);
+        console.log(updatedRows);
         
         if (updatedRows === 0) {
             return res.status(400).json({ error: "Unable to update status: The query ID may be invalid or the query status is already changed" });
