@@ -235,7 +235,7 @@ const getQueryDetails = async (req, res) => {
 };
 
 const acceptOrRejectQuery = (status) => async (req, res) => {
-    const queryId = req.params?.id;
+    const queryId = req.body.id;
     const closure_date = req.body.date;
     const remarks = req.query?.remarks;
     
