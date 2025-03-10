@@ -262,10 +262,6 @@ const acceptOrRejectQuery = (status) => async (req, res) => {
             },
             { where: { id: queryId, status: 'Open', staff_member_id: staffData.id } }
         );
-        console.log(status);
-        console.log(queryId);
-        console.log(req.user.id);
-        console.log(updatedRows);
         
         if (updatedRows === 0) {
             return res.status(400).json({ error: "Unable to update status: The query ID may be invalid or the query status is already changed" });
