@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, QueryTypes} = require("sequelize");
 const sequelize = require('../config/db');
 const Buildings = require("../models/Buildings");
 const UserBuildingUnits = require("../models/UserBuildingUnits");
@@ -6,13 +6,12 @@ const BuildingUnits = require("../models/BuildingUnits");
 const Departments = require("../models/Departments");
 const StaffMembers = require("../models/StaffMembers");
 const Queries = require("../models/Queries");
-const User = require("../models/Users");
 const QueryPictures = require("../models/QueryPictures");
 const FormData = require("form-data");
 const fs = require("fs");
 const axios = require("axios");
-const BuildingLevels = require("../models/BuildingLevels");
 const BuildingPictures = require("../models/BuildingPictures");
+
 
 const userUnitNames = async (req, res) => {
     try {
@@ -166,7 +165,7 @@ const getQueriesByField = (field) => async (req, res) => {
             where: { user_id: req.user.id },
         })
         if (!staffData) {
-            return res.status(400).json({ error: "Only staff member can access this" });
+            return res.status(400).json({ queries: [] });
         }
         userId = staffData.id;
     }else{
@@ -273,6 +272,10 @@ const acceptOrRejectQuery = (status) => async (req, res) => {
             where: { user_id: req.user.id },
         });
         
+        if (!staffData) {
+            return res.status(400).json({ error: "Only Staff can access this page" });
+        }
+        
         const [updatedRows] = await Queries.update(
             {
                 status: status === "Rejected" ? "Rejected" : "In Progress",
@@ -293,4 +296,139 @@ const acceptOrRejectQuery = (status) => async (req, res) => {
     }
 };
 
-module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails, acceptOrRejectQuery};
+const getQueriesCount = async (req, res) => {
+    try {
+        if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+        
+        const staffData = await StaffMembers.findOne({
+            where: { user_id: req.user.id },
+        });
+        
+        
+        if (!staffData) return res.json({ success: true, data: [] });
+        
+        const staffMemberId = staffData?.id;
+        
+        const query = `
+            SELECT
+                COUNT(*) AS total_queries,
+                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
+                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
+                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
+            FROM queries
+            WHERE staff_member_id = :staffMemberId;
+        `;
+        
+        const results = await sequelize.query(query, {
+            replacements: { staffMemberId },
+            type: QueryTypes.SELECT
+        });
+        
+        return res.json({ success: true, data: results });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+const getQueriesChartData = async (req, res) => {
+    try {
+        if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+        
+        const staffData = await StaffMembers.findOne({
+            where: { user_id: req.user.id },
+        });
+        
+        if (!staffData) return res.json({ success: true, data: [] });
+        
+        const staffMemberId = staffData.id;
+        const selectedYear = req.params?.year;
+        
+        if (!selectedYear) return res.status(400).json({ error: "Year is required" });
+        
+        const query = `
+            SELECT
+                DATE_FORMAT(created_at, '%Y-%m') AS query_month,
+                COUNT(*) AS total_queries,
+                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
+                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
+                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
+            FROM queries
+            WHERE staff_member_id = :staffMemberId AND YEAR(created_at) = :selectedYear
+            GROUP BY query_month
+            ORDER BY query_month;
+        `;
+        
+        const results = await sequelize.query(query, {
+            replacements: { staffMemberId, selectedYear },
+            type: QueryTypes.SELECT
+        });
+        
+        return res.json({ success: true, data: results });
+    } catch (error) {
+        console.error('Error in Queries Count: ', error.message);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+const getQueryStats = async (req, res) => {
+    try {
+        if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+        
+        const staffData = await StaffMembers.findOne({
+            where: { user_id: req.user.id },
+        });
+        
+        if (!staffData) return res.json({ success: true, counts: [], monthly: [] });
+        
+        const staffMemberId = staffData.id;
+        const year = req.params?.year;
+        
+        // Query without monthly grouping & also without specific year
+        const counts = `
+            SELECT
+                COUNT(*) AS total_queries,
+                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
+                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
+                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
+            FROM queries
+            WHERE staff_member_id = :staffMemberId;
+        `;
+        
+        // Query with monthly grouping & specific year
+        const monthlyQuery = `
+            SELECT
+                DATE_FORMAT(created_at, '%Y-%m') AS query_month,
+                COUNT(*) AS total_queries,
+                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
+                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
+                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
+                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
+            FROM queries
+            WHERE staff_member_id = :staffMemberId AND YEAR(created_at) = :year
+            GROUP BY query_month
+            ORDER BY query_month;
+        `;
+        
+        const [countResults, monthlyResults] = await Promise.all([
+            sequelize.query(counts, {
+                replacements: { staffMemberId, year },
+                type: QueryTypes.SELECT
+            }),
+            sequelize.query(monthlyQuery, {
+                replacements: { staffMemberId, year },
+                type: QueryTypes.SELECT
+            }),
+        ]);
+        
+        return res.json({ success: true, counts: countResults, monthly: monthlyResults });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails, acceptOrRejectQuery, getQueriesCount, getQueriesChartData, getQueryStats};
