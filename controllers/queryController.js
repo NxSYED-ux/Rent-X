@@ -12,6 +12,7 @@ const FormData = require("form-data");
 const fs = require("fs");
 const axios = require("axios");
 const BuildingLevels = require("../models/BuildingLevels");
+const BuildingPictures = require("../models/BuildingPictures");
 
 const userUnitNames = async (req, res) => {
     try {
@@ -186,11 +187,24 @@ const getQueriesByField = (field) => async (req, res) => {
                 [field]: userId,
                 status: { [Op.in]: statusArray }
             },
+            attributes: ['id', 'description', 'status', 'expected_closure_date', 'remarks', 'created_at'],
             include: [
                 {
                     model: BuildingUnits,
                     as: 'unit',
                     attributes: ['unit_name'],
+                },
+                {
+                    model: Buildings,
+                    as: 'building',
+                    attributes: ['name'],
+                    include: [
+                        {
+                            model: BuildingPictures,
+                            as: 'pictures',
+                            attributes: ['file_path'],
+                        }
+                    ]
                 }
             ],
             order: [["created_at", "DESC"]],
@@ -199,7 +213,7 @@ const getQueriesByField = (field) => async (req, res) => {
         res.status(200).json({ queries });
     } catch (error) {
         console.error("Error in getQueriesByField:", error);
-        res.status(500).json({ error: "Failed to retrieve queries" });
+        res.status(500).json({ error: error.message || "Failed to retrieve queries" });
     }
 };
 
@@ -219,6 +233,11 @@ const getQueryDetails = async (req, res) => {
                     model: QueryPictures,
                     as: 'pictures',
                     attributes: ['file_path'],
+                },
+                {
+                    model: BuildingUnits,
+                    as: 'unit',
+                    attributes: ['unit_name'],
                 }
             ],
         });
@@ -237,7 +256,7 @@ const getQueryDetails = async (req, res) => {
 const acceptOrRejectQuery = (status) => async (req, res) => {
     const queryId = req.body.id;
     const closure_date = req.body.date;
-    const remarks = req.query?.remarks;
+    const remarks = req.body?.remarks;
     
     if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
     

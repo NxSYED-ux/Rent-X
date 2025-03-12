@@ -42,9 +42,5 @@ router.get('/query/:id', authMiddleware, validatePermission('View User Queries A
 router.get('/values-by-type/:type', getDropdownValuesByType);
 router.get('/values-by-value/:value', getDropdownValuesByValue);
 
-router.get('/BuildingTree/:id', authMiddleware, Tree);
-router.get('/Unit/:id', UnitData);
-router.post('/assign-unit', authMiddleware, AssignUnit);
-
 module.exports = router;
 

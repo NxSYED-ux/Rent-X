@@ -7,8 +7,6 @@ const UnitPictures = require('../models/UnitPictures');
 
 const specificBuildingUnits = async (req, res) => {
     try {
-        const { limit = 10, offset = 0 } = req.query;
-        
         const id = parseInt(req.params.id, 10);
         if (isNaN(id)) {
             return res.status(400).json({ error: 'Invalid building ID' });

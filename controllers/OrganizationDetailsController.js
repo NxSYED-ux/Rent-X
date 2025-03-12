@@ -7,7 +7,6 @@ const OrganizationPictures = require("../models/OrganizationPictures");
 
 const organizationDetails = async (req, res) => {
     try {
-        const { limit = 10, offset = 0 } = req.query;
         const id = parseInt(req.params.id, 10);
         
         if (isNaN(id)) {
@@ -50,8 +49,6 @@ const organizationDetails = async (req, res) => {
                     attributes: ['file_path'],
                 },
             ],
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10),
             order: [['updated_at', 'DESC']],
         });
         

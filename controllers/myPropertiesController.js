@@ -5,11 +5,10 @@ const BuildingLevels = require('../models/BuildingLevels');
 const BuildingUnits = require('../models/BuildingUnits');
 const UnitPictures = require('../models/UnitPictures');
 const UserBuildingUnits = require('../models/UserBuildingUnits');
+const Queries = require('../models/Queries');
 
 const showMyProperties = async (req, res) => {
     try {
-        const { limit = 10, offset = 0 } = req.query;
-        
         if (!req.user || !req.user.id) {
             return res.status(401).json({ error: 'User not authenticated.' });
         }
@@ -60,18 +59,16 @@ const showMyProperties = async (req, res) => {
                 },
             ],
             attributes: ['id','type','price','rent_start_date','rent_end_date','purchase_date','updated_at'],
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10),
             order: [['updated_at', 'DESC']],
         });
         
         res.status(200).json({
-            myPropertiesData: data,
+            myProperties: data,
         });
     } catch (error) {
         console.error("Error in showMyProperties:", error);
         res.status(500).json({
-            error: error.message || 'An error occurred while fetching My Properties data.',
+            error: 'An error occurred while fetching My Properties data.',
         });
     }
 };
@@ -90,7 +87,7 @@ const myPropertyDetails = async (req, res) => {
                 {
                     model: BuildingUnits,
                     as: 'unit',
-                    attributes: ['id', 'unit_name', 'unit_type', 'price', 'sale_or_rent'],
+                    attributes: ['id', 'unit_name'],
                     required: true,
                     include: [
                         {
@@ -115,10 +112,21 @@ const myPropertyDetails = async (req, res) => {
                                 },
                             ],
                         },
+                        {
+                            model: UnitPictures,
+                            as: 'pictures',
+                            attributes: ['file_path'],
+                        },
+                        {
+                            model: Queries,
+                            as: 'queries',
+                            attributes: ['id', 'description', 'status', 'expected_closure_date', 'remarks', 'created_at'],
+                            where: { user_id: req.user.id },
+                        },
                     ],
                 }
             ],
-            attributes: ['id','rent_start_date','rent_end_date','purchase_date'],
+            attributes: ['id', 'price', 'type', 'rent_start_date','rent_end_date','purchase_date'],
         });
         
         res.status(200).json({
@@ -126,7 +134,7 @@ const myPropertyDetails = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in myPropertyDetails:", error);
-        res.status(500).json({ error: error.message || 'An error occurred while fetching details page data.' });
+        res.status(500).json({ error: 'An error occurred while fetching details page data.' });
     }
 };
 
