@@ -374,61 +374,266 @@ const getQueriesChartData = async (req, res) => {
 };
 
 const getQueryStats = async (req, res) => {
+    // This one is complex and not recomended to use it don't need that much complexity
     try {
         if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
-        
-        const staffData = await StaffMembers.findOne({
-            where: { user_id: req.user.id },
-        });
-        
-        if (!staffData) return res.json({ success: true, counts: [], monthly: [] });
-        
+
+        const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
+        if (!staffData) return res.json({ success: true, yearly: {}, monthly: {} });
+
         const staffMemberId = staffData.id;
-        const year = req.params?.year;
-        
-        // Query without monthly grouping & also without specific year
-        const counts = `
-            SELECT
-                COUNT(*) AS total_queries,
-                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
-                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
-                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
-                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
-            FROM queries
-            WHERE staff_member_id = :staffMemberId;
-        `;
-        
-        // Query with monthly grouping & specific year
+        const year = req.query?.year;
+        const month = req.query?.month;
+
+        const statusQuery = `SELECT DISTINCT status FROM queries`;
+        const statuses = await sequelize.query(statusQuery, { type: QueryTypes.SELECT });
+        const statusList = statuses.map(s => s.status);
+
+        const statusCases = statusList.map(status =>
+            `SUM(CASE WHEN status = '${status}' THEN 1 ELSE 0 END) AS \`${status}\``
+        ).join(', ');
+
+        let whereClause = `WHERE staff_member_id = :staffMemberId`;
+        let replacements = { staffMemberId };
+
+        if (year) {
+            whereClause += ` AND YEAR(created_at) = :year`;
+            replacements.year = year;
+        }
+
+        if (month) {
+            whereClause += ` AND MONTH(created_at) = :month`;
+            replacements.month = month;
+        }
+
+        // Query for monthly or specific month grouping
         const monthlyQuery = `
             SELECT
+                YEAR(created_at) AS query_year,
                 DATE_FORMAT(created_at, '%Y-%m') AS query_month,
                 COUNT(*) AS total_queries,
-                SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
-                SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS In_Progress,
-                SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
-                SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected
+                ${statusCases}
             FROM queries
-            WHERE staff_member_id = :staffMemberId AND YEAR(created_at) = :year
-            GROUP BY query_month
-            ORDER BY query_month;
+                ${whereClause}
+            GROUP BY query_year, query_month
+            ORDER BY query_year, query_month;
         `;
-        
-        const [countResults, monthlyResults] = await Promise.all([
-            sequelize.query(counts, {
-                replacements: { staffMemberId, year },
-                type: QueryTypes.SELECT
-            }),
-            sequelize.query(monthlyQuery, {
-                replacements: { staffMemberId, year },
-                type: QueryTypes.SELECT
-            }),
+
+        // Query for yearly total
+        const yearlyQuery = `
+            SELECT
+                YEAR(created_at) AS query_year,
+                COUNT(*) AS total_queries,
+                ${statusCases}
+            FROM queries
+                ${whereClause}
+            GROUP BY query_year
+            ORDER BY query_year;
+        `;
+
+        const [monthlyResults, yearlyResults] = await Promise.all([
+            sequelize.query(monthlyQuery, { replacements, type: QueryTypes.SELECT }),
+            sequelize.query(yearlyQuery, { replacements, type: QueryTypes.SELECT })
         ]);
-        
-        return res.json({ success: true, counts: countResults, monthly: monthlyResults });
+
+        const monthNames = {
+            "01": "January", "02": "February", "03": "March", "04": "April",
+            "05": "May", "06": "June", "07": "July", "08": "August",
+            "09": "September", "10": "October", "11": "November", "12": "December"
+        };
+
+        let formattedData = { success: true, yearly: {}, monthly: {} };
+
+        // If yearly data exists, store it correctly per year
+        yearlyResults.forEach(row => {
+            formattedData.yearly[row.query_year] = {
+                total_queries: row.total_queries
+            };
+            statusList.forEach(status => {
+                formattedData.yearly[row.query_year][status] = row[status] || "0";
+            });
+        });
+
+        // Properly organize monthly results by year and month
+        monthlyResults.forEach(row => {
+            const yearKey = row.query_year;
+            const monthKey = monthNames[row.query_month.split("-")[1]];
+
+            if (!formattedData.monthly[yearKey]) {
+                formattedData.monthly[yearKey] = {};
+            }
+
+            formattedData.monthly[yearKey][monthKey] = { total_queries: row.total_queries };
+            statusList.forEach(status => {
+                formattedData.monthly[yearKey][monthKey][status] = row[status] || "0";
+            });
+        });
+
+        return res.json(formattedData);
+
     } catch (error) {
-        console.error(error);
+        console.error('Error in getQueryStats:', error.message);
         return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
 
-module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails, acceptOrRejectQuery, getQueriesCount, getQueriesChartData, getQueryStats};
+const getYearlyQueryStats = async (req, res) => {
+    try {
+        if (!req.user?.id) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+        
+        const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
+        if (!staffData) return res.json({ yearly: {}, monthly: {} });
+        
+        const staffMemberId = staffData.id;
+        const year = req.query?.year;
+        const month = req.query?.month;
+        
+        const statusQuery = `SELECT DISTINCT status FROM queries`;
+        const statuses = await sequelize.query(statusQuery, { type: QueryTypes.SELECT });
+        const statusList = statuses.map(s => s.status);
+        
+        const statusCases = statusList.map(status =>
+            `SUM(CASE WHEN status = '${status}' THEN 1 ELSE 0 END) AS \`${status}\``
+        ).join(', ');
+        
+        let whereClause = `WHERE staff_member_id = :staffMemberId`;
+        let replacements = { staffMemberId };
+        
+        if (year) {
+            whereClause += ` AND YEAR(created_at) = :year`;
+            replacements.year = year;
+        }
+        
+        if (month) {
+            whereClause += ` AND MONTH(created_at) = :month`;
+            replacements.month = month;
+        }
+        
+        // Query for both yearly and monthly based on input
+        const query = `
+            SELECT
+                COUNT(*) AS total_queries,
+                ${statusCases}
+            FROM queries
+            ${whereClause}
+        `;
+        
+        const results = await sequelize.query(query, { replacements, type: QueryTypes.SELECT });
+        
+        return res.json({ success: true, data: results });
+        
+    } catch (error) {
+        console.error('Error in getQueryStats:', error.message);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+// const getYearlyQueryStats = async (req, res) => {
+//     try {
+//         if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+//
+//         const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
+//         if (!staffData) return res.json({yearly: {} });
+//
+//         const staffMemberId = staffData.id;
+//         const year = req.query?.year;
+//
+//         const statusQuery = `SELECT DISTINCT status FROM queries`;
+//         const statuses = await sequelize.query(statusQuery, { type: QueryTypes.SELECT });
+//         const statusList = statuses.map(s => s.status);
+//
+//         const statusCases = statusList.map(status =>
+//             `SUM(CASE WHEN status = '${status}' THEN 1 ELSE 0 END) AS \`${status}\``
+//         ).join(', ');
+//
+//         let whereClause = `WHERE staff_member_id = :staffMemberId`;
+//         let replacements = { staffMemberId };
+//
+//         if (year) {
+//             whereClause += ` AND YEAR(created_at) = :year`;
+//             replacements.year = year;
+//         }
+//
+//         const yearlyQuery = `
+//             SELECT COUNT(*) AS total_queries, ${statusCases}
+//             FROM queries
+//             ${whereClause};
+//         `;
+//
+//         const [yearlyResults] = await sequelize.query(yearlyQuery, { replacements, type: QueryTypes.SELECT });
+//
+//         return res.json({yearly: yearlyResults[0] || {} });
+//
+//     } catch (error) {
+//         console.error('Error in getYearlyQueryStats' , error.message);
+//         return res.status(500).json({ success: false, message: 'Internal Server Error' });
+//     }
+// };
+
+const getMonthlyQueryStats = async (req, res) => {
+    try {
+        if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
+        
+        const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
+        if (!staffData) return res.json({ monthly: {} });
+        
+        const staffMemberId = staffData.id;
+        const year = req.query?.year;
+        const month = req.query?.month;
+        
+        if (!year) return res.status(400).json({ error: "Year is required for monthly stats" });
+        
+        const statusQuery = `SELECT DISTINCT status FROM queries`;
+        const statuses = await sequelize.query(statusQuery, { type: QueryTypes.SELECT });
+        const statusList = statuses.map(s => s.status);
+        
+        const statusCases = statusList.map(status =>
+            `SUM(CASE WHEN status = '${status}' THEN 1 ELSE 0 END) AS \`${status}\``
+        ).join(', ');
+        
+        let whereClause = `WHERE staff_member_id = :staffMemberId AND YEAR(created_at) = :year`;
+        let replacements = { staffMemberId, year };
+        
+        if (month) {
+            whereClause += ` AND MONTH(created_at) = :month`;
+            replacements.month = month;
+        }
+        
+        const monthlyQuery = `
+            SELECT DATE_FORMAT(created_at, '%Y-%m') AS query_month, COUNT(*) AS total_queries, ${statusCases}
+            FROM queries
+            ${whereClause}
+            GROUP BY query_month
+            ORDER BY query_month;
+        `;
+        
+        const monthlyResults = await sequelize.query(monthlyQuery, { replacements, type: QueryTypes.SELECT });
+        
+        const monthNames = {
+            "01": "January", "02": "February", "03": "March", "04": "April",
+            "05": "May", "06": "June", "07": "July", "08": "August",
+            "09": "September", "10": "October", "11": "November", "12": "December"
+        };
+        
+        let formattedData = { monthly: {} };
+        
+        monthlyResults.forEach(row => {
+            const monthKey = monthNames[row.query_month.split("-")[1]];
+            formattedData.monthly[monthKey] = { total_queries: row.total_queries };
+            
+            statusList.forEach(status => {
+                formattedData.monthly[monthKey][status] = row[status] || "0";
+            });
+        });
+        
+        return res.json(formattedData);
+        
+    } catch (error) {
+        console.error('Error in getMonthlyQueryStats' , error.message);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+module.exports = {logQuery, userUnitNames, correspondingDepartments, getQueriesByField, getQueryDetails, acceptOrRejectQuery, getQueriesCount, getQueriesChartData, getQueryStats, getYearlyQueryStats, getMonthlyQueryStats};

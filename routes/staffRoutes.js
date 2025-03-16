@@ -2,7 +2,7 @@ const express = require('express');
 const authMiddleware  = require('../middlewares/authMiddleware');
 const validatePermission = require("../middlewares/validatePermission");
 const {UserProfile, UpdateProfileData, UploadProfilePic, RemoveProfilePic} = require('../controllers/profileController');
-const {getQueriesByField, getQueryDetails, acceptOrRejectQuery, getQueriesCount, getQueriesChartData, getQueryStats} = require('../controllers/queryController')
+const {getQueriesByField, getQueryDetails, acceptOrRejectQuery, getQueriesCount, getQueriesChartData, getQueryStats, getMonthlyQueryStats, getYearlyQueryStats} = require('../controllers/queryController')
 
 const router = express.Router();
 
@@ -15,8 +15,8 @@ router.get('/get-queries', authMiddleware, validatePermission('View Staff Querie
 router.get('/query/:id', authMiddleware, validatePermission('View Staff Queries Access'), getQueryDetails);
 router.put('/reject-query', authMiddleware, acceptOrRejectQuery('Rejected'));
 router.put('/accept-query', authMiddleware, acceptOrRejectQuery('Accept'));
-router.get('/query-count', authMiddleware, getQueriesCount);
-router.get('/query-chart/:year', authMiddleware, getQueriesChartData);
-router.get('/query-stats/:year', authMiddleware, getQueryStats);
+router.get('/query-count', authMiddleware, getYearlyQueryStats);
+router.get('/query-chart', authMiddleware, getMonthlyQueryStats);
+router.get('/query-stats', authMiddleware, getQueryStats);
 
 module.exports = router;
