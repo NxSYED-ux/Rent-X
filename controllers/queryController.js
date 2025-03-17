@@ -484,7 +484,7 @@ const getYearlyQueryStats = async (req, res) => {
         }
         
         const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
-        if (!staffData) return res.json({ yearly: {}, monthly: {} });
+        if (!staffData) return res.json({ data: {} });
         
         const staffMemberId = staffData.id;
         const year = req.query?.year;
@@ -522,55 +522,13 @@ const getYearlyQueryStats = async (req, res) => {
         
         const results = await sequelize.query(query, { replacements, type: QueryTypes.SELECT });
         
-        return res.json({ success: true, data: results });
+        return res.json({ data: results[0] });
         
     } catch (error) {
-        console.error('Error in getQueryStats:', error.message);
-        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        console.error('Error in yearlyQueryStats:', error.message);
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-
-// const getYearlyQueryStats = async (req, res) => {
-//     try {
-//         if (!req.user?.id) return res.status(400).json({ error: "User ID is required" });
-//
-//         const staffData = await StaffMembers.findOne({ where: { user_id: req.user.id } });
-//         if (!staffData) return res.json({yearly: {} });
-//
-//         const staffMemberId = staffData.id;
-//         const year = req.query?.year;
-//
-//         const statusQuery = `SELECT DISTINCT status FROM queries`;
-//         const statuses = await sequelize.query(statusQuery, { type: QueryTypes.SELECT });
-//         const statusList = statuses.map(s => s.status);
-//
-//         const statusCases = statusList.map(status =>
-//             `SUM(CASE WHEN status = '${status}' THEN 1 ELSE 0 END) AS \`${status}\``
-//         ).join(', ');
-//
-//         let whereClause = `WHERE staff_member_id = :staffMemberId`;
-//         let replacements = { staffMemberId };
-//
-//         if (year) {
-//             whereClause += ` AND YEAR(created_at) = :year`;
-//             replacements.year = year;
-//         }
-//
-//         const yearlyQuery = `
-//             SELECT COUNT(*) AS total_queries, ${statusCases}
-//             FROM queries
-//             ${whereClause};
-//         `;
-//
-//         const [yearlyResults] = await sequelize.query(yearlyQuery, { replacements, type: QueryTypes.SELECT });
-//
-//         return res.json({yearly: yearlyResults[0] || {} });
-//
-//     } catch (error) {
-//         console.error('Error in getYearlyQueryStats' , error.message);
-//         return res.status(500).json({ success: false, message: 'Internal Server Error' });
-//     }
-// };
 
 const getMonthlyQueryStats = async (req, res) => {
     try {
