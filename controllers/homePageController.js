@@ -56,7 +56,7 @@ const homePage = async (req, res) => {
             };
         }
         
-        const { count, rows: availableUnits } = await BuildingUnits.findAndCountAll({
+        const availableUnits = await BuildingUnits.findAll({
             where: {
                 ...filters, ...searchFilter,
             },
@@ -107,7 +107,6 @@ const homePage = async (req, res) => {
         res.status(200).json({
             user: userData,
             units: availableUnits,
-            totalCount: count,
         });
     } catch (error) {
         console.error("Error in homepage:", error);
