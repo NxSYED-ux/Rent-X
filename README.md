@@ -31,5 +31,5 @@ To run the project locally:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/NxSYED-ux/rentx.git
+git clone https://github.com/NxSYED-ux/rent-x.git
 cd rentx
