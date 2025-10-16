@@ -32,4 +32,4 @@ To run the project locally:
 
 ```bash
 git clone https://github.com/NxSYED-ux/rent-x.git
-cd rentx
+cd rent-x
